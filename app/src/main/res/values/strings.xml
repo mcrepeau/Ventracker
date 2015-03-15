@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Ventra Check</string>
+    <string name="title_activity_card_info">CardInfoActivity</string>
+
+    <string name="title_section1">My Card</string>
+    <string name="title_section2">Manage cards</string>
+    <string name="title_section3">Check new card</string>
+
+    <string name="mediaNickname">Card type: </string>
+    <string name="partialMediaSerialNbr">Card number : *</string>
+    <string name="transitAccountId">Account ID: </string>
+    <string name="accountStatus">Status: </string>
+    <string name="totalBalanceAddPretaxBalance">Balance: </string>
+    <string name="passes">Passes: </string>
+    <string name="riderClassDescription">Rider class: </string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_refresh">Refresh</string>
+
+    <string name="action_settings">Settings</string>
+</resources>

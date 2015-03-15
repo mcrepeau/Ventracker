@@ -1,0 +1,11 @@
+<resources>
+
+    <!-- Strings related to login -->
+    <string name="prompt_card_nb">Card number</string>
+    <string name="expiry_text">Expiration date</string>
+    <string name="expiry_date_month">MM</string>
+    <string name="expiry_date_year">YY</string>
+    <string name="action_add_card">Check</string>
+
+    <string name="error_invalid_card">This card number is invalid</string>
+</resources>
