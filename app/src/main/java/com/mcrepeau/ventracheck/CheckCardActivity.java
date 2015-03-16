@@ -4,21 +4,30 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.IsoDep;
+import android.nfc.tech.NfcB;
 import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -55,6 +64,7 @@ import java.net.CookieStore;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,7 +73,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class CheckCardActivity extends Activity {
 
-    private AddCardTask mAddCardTask = null;
+    private CheckCardTask mCheckCardTask = null;
 
     // UI references.
     private TextView mTextView;
@@ -73,10 +83,13 @@ public class CheckCardActivity extends Activity {
     private View mProgressView;
     private View mAddCardFormView;
 
-    public final static String EXTRA_CARD_INFO = "com.mcrepeau.ventracheck.CARD_INFO";
+    private NfcAdapter mNfcAdapter;
 
-    private String _cookie = "";
-    private String _authtoken = "";
+    PendingIntent pendingIntent;
+    IntentFilter[] filters;
+    String[][] techList;
+
+    public final static String EXTRA_CARD_INFO = "com.mcrepeau.ventracheck.CARD_INFO";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,24 +103,57 @@ public class CheckCardActivity extends Activity {
         mExpiryMonthView = (EditText) findViewById(R.id.expiry_date_m);
         mExpiryYearView = (EditText) findViewById(R.id.expiry_date_y);
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.add_card_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button mCheckCardButton = (Button) findViewById(R.id.add_card_button);
+        mCheckCardButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddCard();
+                CheckCard();
             }
         });
 
         mAddCardFormView = findViewById(R.id.add_card_form);
         mProgressView = findViewById(R.id.add_card_progress);
+
+        pendingIntent = PendingIntent.getActivity(
+                this, 0, new Intent(this, getClass()).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        filters = new IntentFilter[] { new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED) };
+        techList = new String[][] {new String[] { IsoDep.class.getName() } };
+
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        // get the Intent that started this Activity
+        Intent in = getIntent();
+        // get the Bundle that stores the data of this Activity
+        Bundle b = in.getExtras();
+        // getting data from bundle
+
+        handleIntent(in);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mNfcAdapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
+    }
+
+    @Override
+    protected void onPause() {
+        mNfcAdapter.disableForegroundDispatch(this);
+        super.onPause();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        handleIntent(intent);
     }
 
 
     /**
      * Adds the card to the SQLite DB
      */
-    public void AddCard() {
-        if (mAddCardTask != null) {
+    public void CheckCard() {
+        if (mCheckCardTask != null) {
             return;
         }
 
@@ -151,8 +197,8 @@ public class CheckCardActivity extends Activity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAddCardTask = new AddCardTask(nbcard, expmonth, expyear);
-            mAddCardTask.execute((Void) null);
+            mCheckCardTask = new CheckCardTask(nbcard, expmonth, expyear);
+            mCheckCardTask.execute((Void) null);
         }
     }
 
@@ -204,13 +250,13 @@ public class CheckCardActivity extends Activity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class AddCardTask extends AsyncTask<Void, Void, Boolean> {
+    public class CheckCardTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mNBCard;
         private final String mExpMonth;
         private final String mExpYear;
 
-        AddCardTask(String nbcard, String expmonth, String expyear) {
+        CheckCardTask(String nbcard, String expmonth, String expyear) {
             mNBCard = nbcard;
             mExpMonth = expmonth;
             mExpYear = expyear;
@@ -234,7 +280,7 @@ public class CheckCardActivity extends Activity {
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mAddCardTask = null;
+            mCheckCardTask = null;
             showProgress(false);
 
             if (success) {
@@ -246,17 +292,18 @@ public class CheckCardActivity extends Activity {
 
         @Override
         protected void onCancelled() {
-            mAddCardTask = null;
+            mCheckCardTask = null;
             showProgress(false);
         }
     }
 
     public void getCardInfo(String cardnb, String expmonth, String expyear) {
         // Gets the URL from the UI's text field.
-        String stringUrl = "https://www.ventrachicago.com/balance/";
         JSONObject JSONcardinfo;
         JSONObject cardinfo = null;
         String errorinfo = null;
+
+        VentraHttpInterface ventraHttpInterface = new VentraHttpInterface();
 
         Intent intent = new Intent(this, CardInfoActivity.class);
 
@@ -265,8 +312,8 @@ public class CheckCardActivity extends Activity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
-            loadPage(stringUrl);
-            JSONcardinfo = makePostRequest(cardnb, expmonth, expyear);
+            ventraHttpInterface.loadPage();
+            JSONcardinfo = ventraHttpInterface.makePostRequest(cardnb, expmonth, expyear);
             //Parse JSONCardInfo and process its output
             try{
                 if(JSONcardinfo.getJSONObject("d").getBoolean("success") == true){
@@ -276,6 +323,7 @@ public class CheckCardActivity extends Activity {
                     startActivity(intent);
                 }
                 else {
+                    //TODO Better and more comprehensive error handling
                     errorinfo = JSONcardinfo.getJSONObject("d").getString("error");
                     mCardNBView.setHintTextColor(Color.RED);
                     mExpiryMonthView.setHintTextColor(Color.RED);
@@ -291,150 +339,29 @@ public class CheckCardActivity extends Activity {
         }
     }
 
-    private void loadPage(String url){
-        URL urladdress;
-        HttpsURLConnection urlConnection = null;
+    private void handleIntent(Intent intent) {
+        String action = intent.getAction();
+        JSONObject carddata = new JSONObject();
 
-        try {
-            urladdress = new URL(url);
-            urlConnection = (HttpsURLConnection) urladdress.openConnection();
-            int responseCode = urlConnection.getResponseCode();
+        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
+            Log.v("Ventra NFC", "IsoDep Tag detected");
+            // In case we would still use the Tech Discovered Intent
+            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
-            if(responseCode == HttpStatus.SC_OK){
+            VentraCardReader ventraCardReader = new VentraCardReader();
+            carddata = ventraCardReader.readCardData(tag);
 
-                String headerName = null;
-                if(_cookie == ""){
-                    for(int i = 1; (headerName = urlConnection.getHeaderFieldKey(i)) != null; i++){
-                        if(headerName.equalsIgnoreCase("Set-Cookie")){
-                            String cookie = urlConnection.getHeaderField(i);
-                            _cookie += cookie.substring(0, cookie.indexOf(";")) + "; ";
-                        }
-                    }
-                }
-
-                Log.v("HTTP GET Cookie", _cookie);
-
-                String responseString = readStream(urlConnection.getInputStream());
-                Log.v("HTTP GET Rsp", responseString);
-
-                if(_authtoken == ""){
-                    //parse the responseString for <input type="hidden" name="hdnRequestVerificationToken" id="hdnRequestVerificationToken" value="[a-zA-Z0-9]+"/>
-                    Pattern p = Pattern.compile("<input type=\"hidden\" name=\"hdnRequestVerificationToken\" id=\"hdnRequestVerificationToken\" value=\"(.+?)\" />");
-                    Matcher m = p.matcher(responseString);
-                    while (m.find()) {
-                        _authtoken = m.group(1);
-                    }
-                }
-
-                Log.v("HTTP GET AuthToken", _authtoken);
-
-            }else{
-                Log.v("HTTP", "Response code:" + responseCode);
+            try{
+                mCardNBView.setText(carddata.getString("cardnumber"));
+                mExpiryMonthView.setText(carddata.getString("expmonth"));
+                mExpiryYearView.setText(carddata.getString("expyear"));
+            } catch (Exception e){
+                e.printStackTrace();
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if(urlConnection != null)
-                urlConnection.disconnect();
+            CheckCard();
+
         }
-
-    }
-
-    private String readStream(InputStream in) {
-        BufferedReader reader = null;
-        StringBuffer response = new StringBuffer();
-        try {
-            reader = new BufferedReader(new InputStreamReader(in));
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return response.toString();
-    }
-
-    private JSONObject makePostRequest(String serialnb, String expmonth, String expyear) {
-
-        int responseCode;
-
-        URL urladdress;
-
-        HttpsURLConnection urlConnection = null;
-
-        JSONObject cardinfo = new JSONObject();
-        JSONObject request = new JSONObject();
-
-        JSONObject JSONresponse = new JSONObject();
-
-        //Formatting POST request
-        try {
-            cardinfo.put("SerialNumber", serialnb);
-            cardinfo.put("ExpireMonth", expmonth);
-            cardinfo.put("ExpireYear", expyear);
-
-            request.put("TransitMediaInfo", cardinfo);
-            request.put("s", 1);
-            request.put("IncludePassSupportsTal", true);
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
-
-        Log.v("HTTP POST Req", request.toString());
-
-        try {
-            String responseString;
-            urladdress = new URL("https://www.ventrachicago.com/ajax/NAM.asmx/CheckAccountBalance");
-            urlConnection = (HttpsURLConnection) urladdress.openConnection();
-
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            urlConnection.setRequestProperty("RequestVerificationToken", _authtoken);
-
-            urlConnection.setUseCaches(false);
-            urlConnection.setDoInput(true);
-            urlConnection.setDoOutput(true);
-
-            // If cookie exists, then send cookie
-            if (_cookie != "") {
-                urlConnection.setRequestProperty("Cookie", _cookie);
-                urlConnection.connect();
-            }
-
-            OutputStreamWriter wr = new OutputStreamWriter(urlConnection.getOutputStream());
-            wr.write(request.toString());
-            wr.flush();
-            wr.close();
-
-            responseCode = urlConnection.getResponseCode();
-
-            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            responseString = readStream(in);
-            Log.d("HTTP POST Rsp:", responseCode + " - " + responseString);
-            in.close();
-            JSONresponse = new JSONObject(responseString);
-        } catch (ClientProtocolException e) {
-            // Log exception
-            e.printStackTrace();
-        } catch (IOException e) {
-            // Log exception
-            e.printStackTrace();
-        } catch(JSONException e){
-            e.printStackTrace();
-        }
-
-        return JSONresponse;
-
     }
 
 }
