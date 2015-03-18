@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,61 +14,19 @@ import android.net.NetworkInfo;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
-import android.nfc.tech.NfcB;
 import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookieStore;
-import java.net.URL;
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class CheckCardActivity extends Activity {
 
@@ -77,11 +34,12 @@ public class CheckCardActivity extends Activity {
 
     // UI references.
     private TextView mTextView;
+    private TextView mExpiryView;
     private EditText mCardNBView;
     private EditText mExpiryMonthView;
     private EditText mExpiryYearView;
     private View mProgressView;
-    private View mAddCardFormView;
+    private View mCheckCardFormView;
 
     private NfcAdapter mNfcAdapter;
 
@@ -90,20 +48,21 @@ public class CheckCardActivity extends Activity {
     String[][] techList;
 
     public final static String EXTRA_CARD_INFO = "com.mcrepeau.ventracheck.CARD_INFO";
+    public final static String EXTRA_CARD_DATA = "com.mcrepeau.ventracheck.CARD_DATA";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_card);
+        setContentView(R.layout.activity_check_card);
 
+        // We instantiate the different UI elements
         //mTextView = (TextView) findViewById(R.id.textView);
-        // Set up the login form.
         mCardNBView = (EditText) findViewById(R.id.card_nb);
-
         mExpiryMonthView = (EditText) findViewById(R.id.expiry_date_m);
         mExpiryYearView = (EditText) findViewById(R.id.expiry_date_y);
+        mExpiryView = (TextView) findViewById(R.id.expiry_text);
 
-        Button mCheckCardButton = (Button) findViewById(R.id.add_card_button);
+        Button mCheckCardButton = (Button) findViewById(R.id.check_card_button);
         mCheckCardButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,15 +70,24 @@ public class CheckCardActivity extends Activity {
             }
         });
 
-        mAddCardFormView = findViewById(R.id.add_card_form);
-        mProgressView = findViewById(R.id.add_card_progress);
+        mCheckCardFormView = findViewById(R.id.check_card_form);
+        mProgressView = findViewById(R.id.check_card_progress);
 
+        // We set the Intent Filter for NFC reading
         pendingIntent = PendingIntent.getActivity(
                 this, 0, new Intent(this, getClass()).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         filters = new IntentFilter[] { new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED) };
         techList = new String[][] {new String[] { IsoDep.class.getName() } };
 
+        // The UI changes slightly depending on whether NFC is supported
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (mNfcAdapter != null && mNfcAdapter.isEnabled()) {
+            // adapter exists and is enabled.
+            mCardNBView.setHint("Enter your card number or tap your card");
+        }
+        else{
+            mCardNBView.setHint("Enter your card number");
+        }
 
         // get the Intent that started this Activity
         Intent in = getIntent();
@@ -134,12 +102,14 @@ public class CheckCardActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        mNfcAdapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
+        if(mNfcAdapter!=null)
+            mNfcAdapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
     }
 
     @Override
     protected void onPause() {
-        mNfcAdapter.disableForegroundDispatch(this);
+        if(mNfcAdapter!=null)
+            mNfcAdapter.disableForegroundDispatch(this);
         super.onPause();
     }
 
@@ -162,7 +132,7 @@ public class CheckCardActivity extends Activity {
         mExpiryMonthView.setError(null);
         mExpiryYearView.setError(null);
 
-        // Store values at the time of the login attempt.
+        // Store values at the time of the card checking attempt.
         String nbcard = mCardNBView.getText().toString();
         String expmonth = mExpiryMonthView.getText().toString();
         String expyear = mExpiryYearView.getText().toString();
@@ -170,29 +140,32 @@ public class CheckCardActivity extends Activity {
         boolean cancel = false;
         View focusView = null;
 
-/*
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_card));
-            focusView = mPasswordView;
+        // Check for a valid card info, if the user entered it.
+        if (!TextUtils.isEmpty(nbcard) && !isCardNBValid(nbcard)) {
+            mCardNBView.setError(getString(R.string.error_invalid_card));
+            //focusView = mCardNBView;
             cancel = true;
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_card));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_card));
-            focusView = mEmailView;
+        if (!TextUtils.isEmpty(expmonth) && !isExpiryInfoValid(expmonth)) {
+            mExpiryView.setError(getString(R.string.error_invalid_card));
+            //focusView = mExpiryView;
             cancel = true;
         }
-*/
+
+        if (!TextUtils.isEmpty(expyear) && !isExpiryInfoValid(expyear)) {
+            mExpiryView.setError(getString(R.string.error_invalid_card));
+            //focusView = mExpiryView;
+            cancel = true;
+        }
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
-            focusView.requestFocus();
+            //focusView.requestFocus();
+            mCardNBView.setHintTextColor(Color.RED);
+            mExpiryMonthView.setHintTextColor(Color.RED);
+            mExpiryYearView.setHintTextColor(Color.RED);
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
@@ -203,12 +176,10 @@ public class CheckCardActivity extends Activity {
     }
 
     private boolean isCardNBValid(String nbcard) {
-        return nbcard.length() == 2;
+        return nbcard.length() == 16;
     }
 
-    private boolean isExpiryInfoValid(String expmonth, String expyear) {
-        return (expmonth.length() == 2 && expmonth.length() ==2);
-    }
+    private boolean isExpiryInfoValid(String expiryinfo) { return (expiryinfo.length() == 2); }
 
     /**
      * Shows the progress UI and hides the login form.
@@ -221,12 +192,12 @@ public class CheckCardActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mAddCardFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mAddCardFormView.animate().setDuration(shortAnimTime).alpha(
+            mCheckCardFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mCheckCardFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mAddCardFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    mCheckCardFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
@@ -242,7 +213,7 @@ public class CheckCardActivity extends Activity {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mAddCardFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mCheckCardFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -264,17 +235,13 @@ public class CheckCardActivity extends Activity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
             try {
-                // Simulate network access.
+                // We proceed with checking the card info
                 getCardInfo(mNBCard, mExpMonth, mExpYear);
-                //Thread.sleep(2000);
             } catch (Exception e) {
                 return false;
             }
 
-            // TODO: register the new account here.
             return true;
         }
 
@@ -284,9 +251,9 @@ public class CheckCardActivity extends Activity {
             showProgress(false);
 
             if (success) {
-                //
+                // TODO: Error handling
             } else {
-                //
+                // TODO: Error handling
             }
         }
 
@@ -299,13 +266,24 @@ public class CheckCardActivity extends Activity {
 
     public void getCardInfo(String cardnb, String expmonth, String expyear) {
         // Gets the URL from the UI's text field.
-        JSONObject JSONcardinfo;
-        JSONObject cardinfo = null;
+        JSONObject JSONrequestrsp;
+        JSONObject JSONcarddata;
+        JSONObject JSONcardinfo = new JSONObject();
+
+
+        try {
+            JSONcardinfo.put("SerialNumber", cardnb);
+            JSONcardinfo.put("ExpireMonth", expmonth);
+            JSONcardinfo.put("ExpireYear", expyear);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
         String errorinfo = null;
 
         VentraHttpInterface ventraHttpInterface = new VentraHttpInterface();
 
-        Intent intent = new Intent(this, CardInfoActivity.class);
+        Intent intent = new Intent(this, DisplayCardActivity.class);
 
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -313,18 +291,19 @@ public class CheckCardActivity extends Activity {
 
         if (networkInfo != null && networkInfo.isConnected()) {
             ventraHttpInterface.loadPage();
-            JSONcardinfo = ventraHttpInterface.makePostRequest(cardnb, expmonth, expyear);
+            JSONrequestrsp = ventraHttpInterface.makePostRequest(JSONcardinfo);
             //Parse JSONCardInfo and process its output
             try{
-                if(JSONcardinfo.getJSONObject("d").getBoolean("success") == true){
-                    cardinfo = JSONcardinfo.getJSONObject("d").getJSONObject("result");
-                    intent.putExtra(EXTRA_CARD_INFO, cardinfo.toString());
-                    //Start CardInfoActivity
+                if(JSONrequestrsp.getJSONObject("d").getBoolean("success") == true){
+                    JSONcarddata = JSONrequestrsp.getJSONObject("d").getJSONObject("result");
+                    intent.putExtra(EXTRA_CARD_DATA, JSONcarddata.toString());
+                    intent.putExtra(EXTRA_CARD_INFO, JSONcardinfo.toString());
+                    //Start DisplayCardActivity
                     startActivity(intent);
                 }
                 else {
                     //TODO Better and more comprehensive error handling
-                    errorinfo = JSONcardinfo.getJSONObject("d").getString("error");
+                    errorinfo = JSONrequestrsp.getJSONObject("d").getString("error");
                     mCardNBView.setHintTextColor(Color.RED);
                     mExpiryMonthView.setHintTextColor(Color.RED);
                     mExpiryYearView.setHintTextColor(Color.RED);
@@ -359,6 +338,7 @@ public class CheckCardActivity extends Activity {
                 e.printStackTrace();
             }
 
+            // If the Ventra card is read, we check its data
             CheckCard();
 
         }

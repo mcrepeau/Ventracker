@@ -9,12 +9,12 @@
     android:weightSum="1">
 
     <!-- Login progress -->
-    <ProgressBar android:id="@+id/add_card_progress" style="?android:attr/progressBarStyleLarge"
+    <ProgressBar android:id="@+id/check_card_progress" style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_marginBottom="8dp" android:visibility="gone"
         android:layout_gravity="center" />
 
-    <ScrollView android:id="@+id/add_card_form" android:layout_width="match_parent"
+    <ScrollView android:id="@+id/check_card_form" android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <LinearLayout android:id="@+id/info_add_card_form" android:layout_width="match_parent"
@@ -23,6 +23,7 @@
             <EditText android:id="@+id/card_nb" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_card_nb"
                 android:inputType="number" android:maxLines="1"
+                android:maxLength="16"
                 android:singleLine="true" />
 
             <LinearLayout
@@ -51,6 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:hint="@string/expiry_date_month"
+                    android:maxLength="2"
                     android:inputType="number"
                     android:maxLines="1"
                     android:singleLine="true"
@@ -61,6 +63,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:hint="@string/expiry_date_year"
+                    android:maxLength="2"
                     android:inputType="number"
                     android:maxLines="1"
                     android:singleLine="true"
@@ -68,7 +71,7 @@
                     android:layout_weight="1" />
             </LinearLayout>
 
-            <Button android:id="@+id/add_card_button" style="?android:textAppearanceSmall"
+            <Button android:id="@+id/check_card_button" style="?android:textAppearanceSmall"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="16dp" android:text="@string/action_add_card"
                 android:textStyle="bold" />

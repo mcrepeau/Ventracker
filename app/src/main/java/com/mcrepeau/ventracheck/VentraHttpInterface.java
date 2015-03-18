@@ -101,7 +101,7 @@ public class VentraHttpInterface {
         return response.toString();
     }
 
-    public JSONObject makePostRequest(String serialnb, String expmonth, String expyear) {
+    public JSONObject makePostRequest(JSONObject cardinfo) {
 
         int responseCode;
 
@@ -109,25 +109,19 @@ public class VentraHttpInterface {
 
         HttpsURLConnection urlConnection = null;
 
-        JSONObject cardinfo = new JSONObject();
-        JSONObject request = new JSONObject();
-
+        JSONObject JSONrequest = new JSONObject();
         JSONObject JSONresponse = new JSONObject();
 
-        //Formatting POST request
+        //Formatting POST JSONrequest
         try {
-            cardinfo.put("SerialNumber", serialnb);
-            cardinfo.put("ExpireMonth", expmonth);
-            cardinfo.put("ExpireYear", expyear);
-
-            request.put("TransitMediaInfo", cardinfo);
-            request.put("s", 1);
-            request.put("IncludePassSupportsTal", true);
+            JSONrequest.put("TransitMediaInfo", cardinfo);
+            JSONrequest.put("s", 1);
+            JSONrequest.put("IncludePassSupportsTal", true);
         } catch (JSONException e){
             e.printStackTrace();
         }
 
-        Log.v("HTTP POST Req", request.toString());
+        Log.v("HTTP POST Req", JSONrequest.toString());
 
         try {
             String responseString;
@@ -149,7 +143,7 @@ public class VentraHttpInterface {
             }
 
             OutputStreamWriter wr = new OutputStreamWriter(urlConnection.getOutputStream());
-            wr.write(request.toString());
+            wr.write(JSONrequest.toString());
             wr.flush();
             wr.close();
 
