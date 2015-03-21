@@ -1,5 +1,6 @@
 package com.mcrepeau.ventracheck;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
@@ -107,6 +108,7 @@ public class NavigationDrawerFragment extends Fragment {
                         getString(R.string.title_section3),
                 }));
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+
         return mDrawerListView;
     }
 
@@ -190,14 +192,27 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void selectItem(int position) {
         mCurrentSelectedPosition = position;
-        if (mDrawerListView != null) {
+        if (mDrawerListView != null && position != 2) {
             mDrawerListView.setItemChecked(position, true);
         }
-        if (mDrawerLayout != null) {
+        if (mDrawerLayout != null && position != 2) {
             mDrawerLayout.closeDrawer(mFragmentContainerView);
         }
-        if (mCallbacks != null) {
+        if (mCallbacks != null && position != 2) {
             mCallbacks.onNavigationDrawerItemSelected(position);
+        }
+
+        Intent intent;
+        switch (position) {
+            case 1:
+                //getActivity().findViewById(R.id.action_example).setVisibility(View.GONE);
+                break;
+            case 2:
+                intent = new Intent(NavigationDrawerFragment.this.getActivity(), CheckCardActivity.class);
+                mDrawerLayout.closeDrawer(mFragmentContainerView);
+                mDrawerListView.setItemChecked(0, true);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
         }
     }
 

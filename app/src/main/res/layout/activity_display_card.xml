@@ -7,7 +7,74 @@
     <!-- As the main content view, the view below consumes the entire
          space available using match_parent in both dimensions. -->
     <FrameLayout android:id="@+id/container" android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:alpha="0.75">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:alpha=".8"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/border"
+            android:nestedScrollingEnabled="true">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:src="@drawable/ventracard_img"
+                android:layout_gravity="center_horizontal"
+                android:layout_alignWithParentIfMissing="false"
+                android:layout_alignParentTop="false"
+                android:layout_alignParentLeft="false"
+                android:layout_alignParentStart="false"
+                android:layout_width="200dp"
+                android:layout_height="85dp"
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="false" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/cardnb"
+                android:id="@+id/textView"
+                android:layout_alignParentEnd="false"
+                android:layout_alignParentStart="false"
+                android:layout_alignRight="@+id/imageView"
+                android:layout_alignBottom="@+id/imageView"
+                android:layout_alignParentRight="false"
+                android:gravity="right"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="2dp"
+                android:textColor="#ff000000"
+                android:alpha="0.75" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/cardstatus"
+                android:id="@+id/textView2"
+                android:gravity="right"
+                android:layout_alignLeft="@+id/imageView"
+                android:layout_alignTop="@+id/imageView"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="2dp"
+                android:textColor="#ff000000"
+                android:textSize="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/riderclassdesc"
+                android:id="@+id/textView3"
+                android:layout_alignTop="@+id/imageView"
+                android:layout_alignLeft="@+id/imageView"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="8dp"
+                android:alpha="0.75" />
+        </RelativeLayout>
 
         <GridLayout
             android:layout_width="wrap_content"

@@ -54,7 +54,7 @@ public class DisplayCardActivity extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_card_info);
+        setContentView(R.layout.activity_display_card);
         Context context = getApplicationContext();
 
         // We get the intent from the CheckCardActivity and its data
@@ -86,23 +86,24 @@ public class DisplayCardActivity extends ActionBarActivity
         // ...and use it in our query to know if there are any cards in the DB
         Cursor c = mDb.query(VentraCheckDBContract.VentraCardInfo.TABLE_NAME, columns, null, null, null, null, null);
 
-        //If no cards are in the DB and we don't come from the DisplayCardActivity we go to the DisplayCardActivity
-        //If there is a card we should pass its info to a function that will fetch the cards infos while a progress bar is running
-        if(c.getCount() == 0){
-            Log.v("Ventra DB", "No cards in the database");
-            if (result_data == null){
-                Log.v("Ventra", "No card scanned");
+        // If we don't come from the DisplayCardActivity and no cards are in the DB we go to the CheckCardActivity
+        // If there is a card in the DB we fetch its data and display it
+        // Otherwise we just display the data from the card scanned
+        if (result_data == null){
+            Log.v("Ventra", "No card scanned");
+            if(c.getCount() == 0){
+                Log.v("Ventra DB", "No cards in the database");
                 startActivity(new Intent(this, CheckCardActivity.class));
             }
-            else {
-                populateInfo(result_data);
+            else{
+                Log.v("Ventra DB", "One or more cards are present in the database");
+                // Check and load info
+                populateInfo(getDatafromDB());
+                mAddCardButton.setVisibility(View.GONE);
             }
         }
-        else{
-            Log.v("Ventra DB", "One or more cards are present in the database");
-            // Check and load info
-            populateInfo(getDatafromDB());
-            mAddCardButton.setVisibility(View.GONE);
+        else {
+            populateInfo(result_data);
         }
 
         mAddCardButton.setOnClickListener(new View.OnClickListener() {
@@ -160,7 +161,7 @@ public class DisplayCardActivity extends ActionBarActivity
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.card_info, menu);
+            getMenuInflater().inflate(R.menu.display_card, menu);
             restoreActionBar();
             return true;
         }
@@ -212,7 +213,7 @@ public class DisplayCardActivity extends ActionBarActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_card_info, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_display_card, container, false);
             return rootView;
         }
 

@@ -14,6 +14,10 @@
     <string name="passes">Passes: </string>
     <string name="riderClassDescription">Rider class: </string>
 
+    <string name="cardnb">Card ending in 9536</string>
+    <string name="cardstatus">Account Active</string>
+    <string name="riderclassdesc">Full Fare</string>
+
     <string name="add_card_button">Add Card</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -24,5 +28,4 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_manage_cards">ManageCardsActivity</string>
 
-    <string name="hello_world">Hello world!</string>
 </resources>
