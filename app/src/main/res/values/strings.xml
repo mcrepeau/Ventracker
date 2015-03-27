@@ -6,17 +6,14 @@
     <string name="title_section2">Manage cards</string>
     <string name="title_section3">Check new card</string>
 
-    <string name="mediaNickname">Card type: </string>
-    <string name="partialMediaSerialNbr">Card number : </string>
-    <string name="transitAccountId">Account ID: </string>
-    <string name="accountStatus">Status: </string>
-    <string name="totalBalanceAddPretaxBalance">Balance: </string>
-    <string name="passes">Passes: </string>
-    <string name="riderClassDescription">Rider class: </string>
+    <!--string name="transitAccountId">Account ID: </string-->
+    <string name="accountStatusValue">Account Suspended </string>
+    <string name="riderClassDescriptionValue">Full Fare</string>
+    <string name="partialMediaSerialNbrValue">Card ending in xxxx</string>
 
-    <string name="cardnb">Card ending in 9536</string>
-    <string name="cardstatus">Account Active</string>
-    <string name="riderclassdesc">Full Fare</string>
+    <string name="totalBalanceAddPretaxBalance">Your total balance: </string>
+    <string name="passes">No pass on this card </string>
+    <string name="remainingRidesValue">No rides remaining.</string>
 
     <string name="add_card_button">Add Card</string>
 
@@ -27,5 +24,8 @@
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_manage_cards">ManageCardsActivity</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

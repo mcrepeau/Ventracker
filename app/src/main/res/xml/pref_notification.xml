@@ -3,25 +3,36 @@
     <!-- A 'parent' preference, which enables/disables child preferences (below)
          when checked/unchecked. -->
     <CheckBoxPreference
-        android:key="notifications_new_message"
-        android:title="@string/pref_title_new_message_notifications"
+        android:key="notifications_card_balance"
+        android:title="@string/pref_title_balance_notifications"
         android:defaultValue="true" />
 
-    <!-- Allows the user to choose a ringtone in the 'notification' category. -->
-    <!-- NOTE: This preference will be enabled only when the checkbox above is checked. -->
-    <!-- NOTE: RingtonePreference's summary should be set to its value by the activity code. -->
-    <RingtonePreference
-        android:dependency="notifications_new_message"
-        android:key="notifications_new_message_ringtone"
-        android:title="@string/pref_title_ringtone"
-        android:ringtoneType="notification"
-        android:defaultValue="content://settings/system/notification_sound" />
+    <ListPreference
+        android:dependency="notifications_card_balance"
+        android:key="notifications_balance"
+        android:title="@string/pref_title_balance"
+        android:defaultValue="4"
+        android:entries="@array/pref_balance_titles"
+        android:entryValues="@array/pref_balance_values"/>
 
-    <!-- NOTE: This preference will be enabled only when the checkbox above is checked. -->
     <CheckBoxPreference
-        android:dependency="notifications_new_message"
-        android:key="notifications_new_message_vibrate"
-        android:title="@string/pref_title_vibrate"
+        android:key="notifications_card_expiry"
+        android:title="@string/pref_title_expiry_notifications"
         android:defaultValue="true" />
+
+    <ListPreference
+        android:dependency="notifications_card_expiry"
+        android:key="notifications_expiry"
+        android:title="@string/pref_title_expiry"
+        android:defaultValue="1"
+        android:entries="@array/pref_expiry_titles"
+        android:entryValues="@array/pref_expiry_values"/>
+
+    <!-- NOTE: This preference will be enabled only when the checkbox above is checked. -->
+    <!--CheckBoxPreference
+        android:dependency="notifications_card_balance"
+        android:key="notifications_vibrate"
+        android:title="@string/pref_title_vibrate"
+        android:defaultValue="true" /-->
 
 </PreferenceScreen>

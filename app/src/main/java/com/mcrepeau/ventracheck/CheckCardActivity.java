@@ -283,7 +283,7 @@ public class CheckCardActivity extends Activity {
 
         VentraHttpInterface ventraHttpInterface = new VentraHttpInterface();
 
-        Intent intent = new Intent(this, DisplayCardActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
 
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -298,7 +298,7 @@ public class CheckCardActivity extends Activity {
                     JSONcarddata = JSONrequestrsp.getJSONObject("d").getJSONObject("result");
                     intent.putExtra(EXTRA_CARD_DATA, JSONcarddata.toString());
                     intent.putExtra(EXTRA_CARD_INFO, JSONcardinfo.toString());
-                    //Start DisplayCardActivity
+                    //Start MainActivity
                     startActivity(intent);
                 }
                 else {

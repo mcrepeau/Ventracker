@@ -36,9 +36,14 @@ public class VentraCheckDBContract {
         public static final String TABLE_NAME = "card_data";
         public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
         public static final String COLUMN_NAME_USER_ID = "user_id"; // Unique ID token randomly generated on first use of the app
-        public static final String COLUMN_NAME_H_CARD_NB = "card_nb"; // Card number (hashed by user token? or by custom token to be able to retrieve single card scanned by multiple users) to protect privacy
+        public static final String COLUMN_NAME_MEDIA_NICK = "media_nickname";
+        public static final String COLUMN_NAME_ACCOUNT_ID = "account_id";
+        public static final String COLUMN_NAME_ACCOUNT_STATUS = "account_status";
+        public static final String COLUMN_NAME_CARD_NB = "card_nb"; // Card number (hashed by user token? or by custom token to be able to retrieve single card scanned by multiple users) to protect privacy
         public static final String COLUMN_NAME_BALANCE = "balance";
         public static final String COLUMN_NAME_PASSES = "passes";
+        public static final String COLUMN_NAME_RIDER_CLASS = "rider_class";
+
 
         public static final String TEXT_TYPE = " TEXT";
         public static final String COMMA_SEP = ",";
@@ -47,9 +52,13 @@ public class VentraCheckDBContract {
                         _ID + " INTEGER PRIMARY KEY," +
                         COLUMN_NAME_TIMESTAMP + TEXT_TYPE + COMMA_SEP +
                         COLUMN_NAME_USER_ID + TEXT_TYPE + COMMA_SEP +
-                        COLUMN_NAME_H_CARD_NB + TEXT_TYPE + COMMA_SEP +
+                        COLUMN_NAME_MEDIA_NICK + TEXT_TYPE + COMMA_SEP +
+                        COLUMN_NAME_ACCOUNT_ID + TEXT_TYPE + COMMA_SEP +
+                        COLUMN_NAME_ACCOUNT_STATUS + TEXT_TYPE + COMMA_SEP +
+                        COLUMN_NAME_CARD_NB + TEXT_TYPE + COMMA_SEP +
                         COLUMN_NAME_BALANCE + TEXT_TYPE + COMMA_SEP +
-                        COLUMN_NAME_PASSES + TEXT_TYPE + " )";
+                        COLUMN_NAME_PASSES + TEXT_TYPE + COMMA_SEP +
+                        COLUMN_NAME_RIDER_CLASS + TEXT_TYPE + " )";
 
         public static final String SQL_DELETE_ENTRIES =
                 "DROP TABLE IF EXISTS " + TABLE_NAME;

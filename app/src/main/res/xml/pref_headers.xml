@@ -5,17 +5,16 @@
     <header android:fragment="com.mcrepeau.ventracheck.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
 
-    <header
-        android:fragment="com.mcrepeau.ventracheck.SettingsActivity$NotificationPreferenceFragment"
+    <header android:fragment="com.mcrepeau.ventracheck.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" />
 
     <header android:fragment="com.mcrepeau.ventracheck.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" /><header
-        android:fragment="com.mcrepeau.ventracheck.VentraCheckSettingsActivity$GeneralPreferenceFragment"
+        android:fragment="com.mcrepeau.ventracheck.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" /><header
-        android:fragment="com.mcrepeau.ventracheck.VentraCheckSettingsActivity$NotificationPreferenceFragment"
+        android:fragment="com.mcrepeau.ventracheck.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" /><header
-        android:fragment="com.mcrepeau.ventracheck.VentraCheckSettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="com.mcrepeau.ventracheck.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
 
 </preference-headers>

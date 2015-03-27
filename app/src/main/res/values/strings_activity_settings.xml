@@ -52,10 +52,39 @@
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
 
-    <string name="pref_title_new_message_notifications">New message notifications</string>
+    <string name="pref_title_balance_notifications">Enable balance notifications</string>
+    <string name="pref_title_balance">When balance falls below</string>
+    <string-array name="pref_balance_titles">
+        <item>$4.00</item>
+        <item>$6.00</item>
+        <item>$8.00</item>
+        <item>$10.00</item>
+        <item>$12.00</item>
+    </string-array>
+    <string-array name="pref_balance_values">
+        <item>4</item>
+        <item>6</item>
+        <item>8</item>
+        <item>10</item>
+        <item>12</item>
+    </string-array>
 
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
+    <string name="pref_title_expiry_notifications">Enable pass expiry notifications</string>
+    <string name="pref_title_expiry">When pass expires in less than</string>
+    <string-array name="pref_expiry_titles">
+        <item>1 day</item>
+        <item>2 days</item>
+        <item>3 days</item>
+        <item>5 days</item>
+        <item>7 days</item>
+    </string-array>
+    <string-array name="pref_expiry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>5</item>
+        <item>7</item>
+    </string-array>
 
     <string name="pref_title_vibrate">Vibrate</string>
 </resources>
