@@ -1,188 +1,208 @@
-<!-- A DrawerLayout is intended to be used as the top-level content view using match_parent for both width and height to consume the full space available. -->
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/drawer_layout"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    tools:context="com.mcrepeau.ventracheck.MainActivity">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- As the main content view, the view below consumes the entire
-         space available using match_parent in both dimensions. -->
-    <FrameLayout android:id="@+id/container" android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0.75">
+    <android.support.v7.widget.Toolbar
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:background="@color/ventra_blue"
+        app:theme="@style/ToolBarTheme"
+        app:popupTheme="@style/Theme.AppCompat"/>
 
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+    <!-- A DrawerLayout is intended to be used as the top-level content view using match_parent for both width and height to consume the full space available. -->
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- As the main content view, the view below consumes the entire
+             space available using match_parent in both dimensions. -->
+        <FrameLayout android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.75">
 
             <RelativeLayout
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:alpha=".8"
-                android:gravity="center_horizontal"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/border"
-                android:nestedScrollingEnabled="true"
-                android:id="@+id/relativeLayout"
-                android:layout_alignParentTop="true">
+                android:layout_height="fill_parent">
 
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:src="@drawable/ventracard_img"
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:alpha=".8"
+                    android:gravity="center_horizontal"
                     android:layout_gravity="center_horizontal"
-                    android:layout_alignWithParentIfMissing="false"
-                    android:layout_alignParentTop="false"
-                    android:layout_alignParentLeft="false"
-                    android:layout_alignParentStart="false"
-                    android:layout_width="200dp"
-                    android:layout_height="85dp"
-                    android:layout_alignParentBottom="false"
-                    android:layout_alignParentEnd="false" />
+                    android:background="@drawable/border"
+                    android:nestedScrollingEnabled="true"
+                    android:id="@+id/relativeLayout"
+                    android:layout_alignParentTop="true">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:text="@string/partialMediaSerialNbrValue"
-                    android:id="@+id/partialMediaSerialNbr"
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:src="@drawable/ventracard_img"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_alignWithParentIfMissing="false"
+                        android:layout_alignParentTop="false"
+                        android:layout_alignParentLeft="false"
+                        android:layout_alignParentStart="false"
+                        android:layout_width="200dp"
+                        android:layout_height="85dp"
+                        android:layout_alignParentBottom="false"
+                        android:layout_alignParentEnd="false" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="@string/partialMediaSerialNbrValue"
+                        android:id="@+id/partialMediaSerialNbr"
+                        android:layout_alignParentEnd="false"
+                        android:layout_alignParentStart="false"
+                        android:layout_alignRight="@+id/imageView"
+                        android:layout_alignBottom="@+id/imageView"
+                        android:layout_alignParentRight="false"
+                        android:gravity="right"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginBottom="2dp"
+                        android:textColor="#ff000000"
+                        android:alpha="0.75" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/accountStatusValue"
+                        android:id="@+id/accountStatus"
+                        android:gravity="right"
+                        android:layout_alignLeft="@+id/imageView"
+                        android:layout_alignTop="@+id/imageView"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="2dp"
+                        android:textColor="#ff000000"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="@string/riderClassDescriptionValue"
+                        android:id="@+id/riderClassDescription"
+                        android:layout_alignTop="@+id/imageView"
+                        android:layout_alignLeft="@+id/imageView"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginLeft="8dp"
+                        android:alpha="0.75" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="left|center_vertical"
+                    android:layout_alignParentStart="false"
                     android:layout_alignParentEnd="false"
-                    android:layout_alignParentStart="false"
-                    android:layout_alignRight="@+id/imageView"
-                    android:layout_alignBottom="@+id/imageView"
-                    android:layout_alignParentRight="false"
-                    android:gravity="right"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginBottom="2dp"
-                    android:textColor="#ff000000"
-                    android:alpha="0.75" />
+                    android:layout_below="@+id/relativeLayout"
+                    android:layout_alignParentBottom="true">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/accountStatusValue"
-                    android:id="@+id/accountStatus"
-                    android:gravity="right"
-                    android:layout_alignLeft="@+id/imageView"
-                    android:layout_alignTop="@+id/imageView"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="2dp"
-                    android:textColor="#ff000000"
-                    android:textSize="16dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="@string/totalBalanceAddPretaxBalance"
+                        android:id="@+id/totalBalanceAddPretaxBalance"
+                        android:layout_row="6"
+                        android:layout_column="0"
+                        android:layout_alignParentStart="false"
+                        android:textSize="36dp"
+                        android:layout_marginTop="30dp"
+                        android:layout_marginLeft="8dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:text="@string/riderClassDescriptionValue"
-                    android:id="@+id/riderClassDescription"
-                    android:layout_alignTop="@+id/imageView"
-                    android:layout_alignLeft="@+id/imageView"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginLeft="8dp"
-                    android:alpha="0.75" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="N/A"
+                        android:id="@+id/totalBalanceAddPretaxBalanceValue"
+                        android:layout_row="6"
+                        android:layout_column="1"
+                        android:layout_below="@+id/totalBalanceAddPretaxBalance"
+                        android:textSize="36dp"
+                        android:layout_marginRight="8dp"
+                        android:gravity="right"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentStart="false" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="@string/passes"
+                        android:id="@+id/passes"
+                        android:layout_row="7"
+                        android:layout_column="0"
+                        android:layout_centerInParent="true"
+                        android:layout_below="@+id/totalBalanceAddPretaxBalance"
+                        android:layout_alignLeft="@+id/totalBalanceAddPretaxBalance"
+                        android:textSize="24dp"
+                        android:layout_marginTop="80dp" />
+
+                    <!--TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="Passes N/A"
+                        android:id="@+id/passesValue"
+                        android:layout_row="7"
+                        android:layout_column="1"
+                        android:layout_marginTop="80dp"
+                        android:layout_below="@+id/totalBalanceAddPretaxBalance"
+                        android:layout_toLeftOf="@+id/passes"
+                        android:layout_marginLeft="8dp" /-->
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/remainingRidesValue"
+                        android:id="@+id/remainingRides"
+                        android:visibility="gone"
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/add_card_button"
+                        android:id="@+id/check_card_button"
+                        android:layout_gravity="center_horizontal|bottom"
+                        android:gravity="center"
+                        android:layout_centerHorizontal="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="80dp" />
+
+                </RelativeLayout>
             </RelativeLayout>
 
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="left|center_vertical"
-                android:layout_alignParentStart="false"
-                android:layout_alignParentEnd="false"
-                android:layout_below="@+id/relativeLayout"
-                android:layout_alignParentBottom="true">
+        </FrameLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/totalBalanceAddPretaxBalance"
-                    android:id="@+id/totalBalanceAddPretaxBalance"
-                    android:layout_row="6"
-                    android:layout_column="0"
-                    android:layout_alignParentStart="false"
-                    android:textSize="36dp"
-                    android:layout_marginTop="30dp"
-                    android:layout_marginLeft="8dp" />
+        <!-- android:layout_gravity="start" tells DrawerLayout to treat
+             this as a sliding drawer on the left side for left-to-right
+             languages and on the right side for right-to-left languages.
+             If you're not building against API 17 or higher, use
+             android:layout_gravity="left" instead. -->
+        <!-- The drawer is given a fixed width in dp and extends the full height of
+             the container. -->
+        <fragment android:id="@+id/navigation_drawer"
+            android:layout_width="@dimen/navigation_drawer_width" android:layout_height="match_parent"
+            android:layout_gravity="start"
+            class = "com.mcrepeau.ventracheck.NavigationDrawerFragment"
+            tools:layout="@layout/fragment_navigation_drawer" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="N/A"
-                    android:id="@+id/totalBalanceAddPretaxBalanceValue"
-                    android:layout_row="6"
-                    android:layout_column="1"
-                    android:layout_below="@+id/totalBalanceAddPretaxBalance"
-                    android:textSize="36dp"
-                    android:layout_marginRight="8dp"
-                    android:gravity="right"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentStart="false" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/passes"
-                    android:id="@+id/passes"
-                    android:layout_row="7"
-                    android:layout_column="0"
-                    android:layout_centerInParent="true"
-                    android:layout_below="@+id/totalBalanceAddPretaxBalance"
-                    android:layout_alignLeft="@+id/totalBalanceAddPretaxBalance"
-                    android:textSize="24dp"
-                    android:layout_marginTop="80dp" />
-
-                <!--TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Passes N/A"
-                    android:id="@+id/passesValue"
-                    android:layout_row="7"
-                    android:layout_column="1"
-                    android:layout_marginTop="80dp"
-                    android:layout_below="@+id/totalBalanceAddPretaxBalance"
-                    android:layout_toLeftOf="@+id/passes"
-                    android:layout_marginLeft="8dp" /-->
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/remainingRidesValue"
-                    android:id="@+id/remainingRides"
-                    android:visibility="gone"
-                    android:layout_centerVertical="true"
-                    android:layout_centerHorizontal="true" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_card_button"
-                    android:id="@+id/check_card_button"
-                    android:layout_gravity="center_horizontal|bottom"
-                    android:gravity="center"
-                    android:layout_centerHorizontal="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="80dp" />
-
-            </RelativeLayout>
-        </RelativeLayout>
-
-    </FrameLayout>
-
-    <!-- android:layout_gravity="start" tells DrawerLayout to treat
-         this as a sliding drawer on the left side for left-to-right
-         languages and on the right side for right-to-left languages.
-         If you're not building against API 17 or higher, use
-         android:layout_gravity="left" instead. -->
-    <!-- The drawer is given a fixed width in dp and extends the full height of
-         the container. -->
-    <fragment android:id="@+id/navigation_drawer"
-        android:layout_width="@dimen/navigation_drawer_width" android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:name="com.mcrepeau.ventracheck.NavigationDrawerFragment"
-        tools:layout="@layout/fragment_navigation_drawer" />
-
-</android.support.v4.widget.DrawerLayout>
+    </android.support.v4.widget.DrawerLayout>
+</LinearLayout>

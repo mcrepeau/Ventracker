@@ -1,16 +1,15 @@
 package com.mcrepeau.ventracheck;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -120,6 +119,11 @@ public class MainActivity extends ActionBarActivity
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
@@ -149,14 +153,15 @@ public class MainActivity extends ActionBarActivity
                 break;
         }
     }
-
+/*
     public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        ActionBar actionBar = getActionBar();
+        Toolbar toolbar = getActionBar();
+        //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
     }
-
+*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -165,7 +170,7 @@ public class MainActivity extends ActionBarActivity
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
             getMenuInflater().inflate(R.menu.display_card, menu);
-            restoreActionBar();
+            //restoreActionBar();
             return true;
         }
         return super.onCreateOptionsMenu(menu);
@@ -220,12 +225,6 @@ public class MainActivity extends ActionBarActivity
             return rootView;
         }
 
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
     }
 
     public void populateInfo(String data){
@@ -243,11 +242,11 @@ public class MainActivity extends ActionBarActivity
             //mTransitAccountId.setText(JSONdata.getString("transitAccountId"));
             mAccountStatus.setText("Account " + JSONdata.getString("accountStatus"));
             mBalance.setText(JSONdata.getString("totalBalanceAndPretaxBalance"));
-            if (JSONdata.getJSONArray("passes").toString() == "[]"){
+            if (JSONdata.getString("passes") == "[]"){
                 mPasses.setText("No pass is active on this card");
             }
             else{
-                mPasses.setText(JSONdata.getJSONArray("passes").toString() + "is active on this card");
+                mPasses.setText(JSONdata.getString("passes") + "is active on this card");
             }
 
             mRiderClassDescription.setText(JSONdata.getString("riderClassDescription"));

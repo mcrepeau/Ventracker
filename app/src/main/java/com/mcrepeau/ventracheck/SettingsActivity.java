@@ -2,12 +2,14 @@ package com.mcrepeau.ventracheck;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -19,6 +21,8 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 import java.util.List;
@@ -46,6 +50,7 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -86,6 +91,9 @@ public class SettingsActivity extends PreferenceActivity {
 
         PreferenceCategory fakeHeader;
 
+        int versionCode = BuildConfig.VERSION_CODE;
+        String versionName = BuildConfig.VERSION_NAME;
+
         // In the simplified UI, fragments are not used at all and we instead
         // use the older PreferenceActivity APIs.
 
@@ -110,11 +118,13 @@ public class SettingsActivity extends PreferenceActivity {
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("example_text"));
-        bindPreferenceSummaryToValue(findPreference("example_list"));
         bindPreferenceSummaryToValue(findPreference("notifications_balance"));
         bindPreferenceSummaryToValue(findPreference("notifications_expiry"));
         bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+
+        EditTextPreference editTextPref = (EditTextPreference) findPreference("app_version");
+        editTextPref.setSummary(versionName + versionCode);
+
     }
 
     /**
@@ -246,8 +256,6 @@ public class SettingsActivity extends PreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
         }
     }
 

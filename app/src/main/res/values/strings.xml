@@ -7,8 +7,8 @@
     <string name="title_section3">Check new card</string>
 
     <!--string name="transitAccountId">Account ID: </string-->
-    <string name="accountStatusValue">Account Suspended </string>
-    <string name="riderClassDescriptionValue">Full Fare</string>
+    <string name="accountStatusValue">No Account</string>
+    <string name="riderClassDescriptionValue">No Fare</string>
     <string name="partialMediaSerialNbrValue">Card ending in xxxx</string>
 
     <string name="totalBalanceAddPretaxBalance">Your total balance: </string>

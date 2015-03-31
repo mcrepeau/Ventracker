@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="ventra_blue" type="color">#3abde4</item>
+    <item name="ventra_lighter_blue" type="color">#4ec5e6</item>
+    <item name="ventra_darker_blue" type="color">#2e97b6</item>
+    <item name="white" type="color">#ffffff</item>
+</resources>
