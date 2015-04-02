@@ -2,7 +2,6 @@ package com.mcrepeau.ventracheck;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.support.v4.app.Fragment;
 
 
 import com.mcrepeau.ventracheck.dummy.DummyContent;
@@ -49,11 +49,11 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
     private ListAdapter mAdapter;
 
     // TODO: Rename and change types of parameters
-    public static ManageCardsFragment newInstance(String param1, String param2) {
+    public static ManageCardsFragment newInstance() {
         ManageCardsFragment fragment = new ManageCardsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        //args.putString(ARG_PARAM1, param1);
+        //args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }

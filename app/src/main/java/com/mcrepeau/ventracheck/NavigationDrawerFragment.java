@@ -1,6 +1,6 @@
 package com.mcrepeau.ventracheck;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -70,7 +71,6 @@ public class NavigationDrawerFragment extends Fragment {
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-
 
 
         if (savedInstanceState != null) {
@@ -195,28 +195,31 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void selectItem(int position) {
-        mCurrentSelectedPosition = position;
-        if (mDrawerListView != null && position != 2) {
+
+        if (position != 2){
+            mCurrentSelectedPosition = position;
+        }
+
+        if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
         }
-        if (mDrawerLayout != null && position != 2) {
+        if (mDrawerLayout != null) {
             mDrawerLayout.closeDrawer(mFragmentContainerView);
         }
-        if (mCallbacks != null && position != 2) {
+        if (mCallbacks != null) {
+            Log.v("Ventra Drawer", "item selected " + position);
             mCallbacks.onNavigationDrawerItemSelected(position);
         }
 
-        Intent intent;
-        switch (position) {
-            case 1:
-                //getActivity().findViewById(R.id.action_example).setVisibility(View.GONE);
-                break;
-            case 2:
-                intent = new Intent(NavigationDrawerFragment.this.getActivity(), CheckCardActivity.class);
-                mDrawerLayout.closeDrawer(mFragmentContainerView);
-                mDrawerListView.setItemChecked(0, true);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+    }
+
+    @Override
+    public void onAttach(Activity activity){
+        super.onAttach(activity);
+        try {
+            mCallbacks = (NavigationDrawerCallbacks) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Activity must implement NavigationDrawerCallbacks.");
         }
     }
 
