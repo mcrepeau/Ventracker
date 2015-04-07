@@ -100,6 +100,7 @@ public class NavigationDrawerFragment extends Fragment {
                 selectItem(position);
             }
         });
+
         mDrawerListView.setAdapter(new ArrayAdapter<String>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
@@ -109,6 +110,7 @@ public class NavigationDrawerFragment extends Fragment {
                         getString(R.string.title_section2),
                         getString(R.string.title_section3),
                 }));
+
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 
         return mDrawerListView;
@@ -196,9 +198,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     private void selectItem(int position) {
 
-        if (position != 2){
-            mCurrentSelectedPosition = position;
-        }
+        mCurrentSelectedPosition = position;
 
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);

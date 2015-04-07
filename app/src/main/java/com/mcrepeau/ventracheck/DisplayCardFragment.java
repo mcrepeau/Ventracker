@@ -1,10 +1,7 @@
 package com.mcrepeau.ventracheck;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,8 +14,8 @@ import android.widget.TextView;
 
 import org.json.JSONObject;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -66,8 +63,8 @@ public class DisplayCardFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param cardinfo Parameter 1.
+     * @param carddata Parameter 2.
      * @return A new instance of fragment DisplayCardFragment.
      */
     // TODO: Rename and change types and number of parameters
@@ -101,21 +98,21 @@ public class DisplayCardFragment extends Fragment {
         // We instantiate the DB Helper and open the DB
         mDbHelper = new VentraCheckDBHelper(getActivity().getApplicationContext());
 
-        String cardinfo = getCardfromDB();
+        Map<String, String> cardinfo = mDbHelper.getAllCardsfromDB();
 
         // If we don't come from the MainActivity and no cards are in the DB we go to the CheckCardActivity
         // If there is a card in the DB we fetch its data and display it
         // Otherwise we just display the data from the card scanned
         if (result_data == null){
             Log.v("Ventra", "No card scanned");
-            if(cardinfo == null){
+            if(cardinfo.size() == 0){
                 Log.v("Ventra DB", "No cards in the database");
                 startActivity(new Intent(getActivity(), CheckCardActivity.class));
             }
             else{
                 Log.v("Ventra DB", "One or more cards are present in the database");
-                // Check and load info
-                String carddata = getDatafromDB();
+                // Check and load info for the
+                //String carddata = mDbHelper.getCardDatafromDB();
                 //populateInfo(carddata);
                 // TODO: Maybe add a condition to limit the number of cards in the DB
                 //mAddCardButton.setVisibility(View.GONE);
@@ -148,8 +145,8 @@ public class DisplayCardFragment extends Fragment {
 
         mAddCardButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                addCardtoDB(result_info);
-                addDatatoDB(result_data);
+                mDbHelper.addCardtoDB(result_info);
+                mDbHelper.addDatatoDB(result_data);
                 mAddCardButton.setVisibility(View.GONE);
             }
         });
@@ -225,7 +222,7 @@ public class DisplayCardFragment extends Fragment {
             e.printStackTrace();
         }
 
-        double balance = Double.parseDouble(mBalance.getText().toString().substring(1));
+        float balance = Float.parseFloat(mBalance.getText().toString().substring(1));
 
         nbbusridesremaining = (int) Math.floor(balance/BUS_RIDE_COST);
         nbtrainridesremaining = (int) Math.floor(balance/TRAIN_RIDE_COST);
@@ -236,139 +233,6 @@ public class DisplayCardFragment extends Fragment {
 
     }
 
-    public long addCardtoDB(String cardinfo){
-        SQLiteDatabase mDb = mDbHelper.getWritableDatabase();
-        JSONObject JSONCardInfo;
-        long newRowId = -1;
 
-        try{
-            JSONCardInfo = new JSONObject(cardinfo);
-            // Gets the data repository in write mode
-            SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-            // Create a new map of values, where column names are the keys
-            ContentValues card_values = new ContentValues();
-            card_values.put(VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_CARD_NB, JSONCardInfo.getString("SerialNumber"));
-            card_values.put(VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_EXPMONTH, JSONCardInfo.getString("ExpireMonth"));
-            card_values.put(VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_EXPYEAR, JSONCardInfo.getString("ExpireYear"));
-
-            // Insert the new row, returning the primary key value of the new row
-            newRowId = db.insert(VentraCheckDBContract.VentraCardInfo.TABLE_NAME, null, card_values);
-            Log.v("Ventra DB", "Card info added to the DB");
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        mDb.close();
-
-        return newRowId;
-    }
-
-    public long addDatatoDB(String carddata){
-        SQLiteDatabase mDb = mDbHelper.getWritableDatabase();
-        JSONObject JSONCardData;
-        Calendar c = GregorianCalendar.getInstance();
-        Log.v("Ventra time", "Time of record" + c.getTime().toString());
-        long newRowId = -1;
-
-        try{
-            JSONCardData = new JSONObject(carddata);
-            // Gets the data repository in write mode
-            SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-            // Create a new map of values, where column names are the keys
-            ContentValues card_values = new ContentValues();
-
-            card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_MEDIA_NICK, JSONCardData.getString("mediaNickname"));
-            card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB, JSONCardData.getString("partialMediaSerialNbr"));
-            card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_ACCOUNT_ID, JSONCardData.getString("transitAccountId"));
-            card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_ACCOUNT_STATUS, JSONCardData.getString("accountStatus"));
-            card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_BALANCE, JSONCardData.getString("totalBalanceAndPretaxBalance"));
-            card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_PASSES, JSONCardData.getString("passes"));
-            card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_RIDER_CLASS, JSONCardData.getString("riderClassDescription"));
-
-            // Insert the new row, returning the primary key value of the new row
-            newRowId = db.insert(VentraCheckDBContract.VentraCardData.TABLE_NAME, null, card_values);
-            Log.v("Ventra DB", "Card data added to the DB");
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        mDb.close();
-
-        return newRowId;
-    }
-
-    public String getCardfromDB(){
-        SQLiteDatabase mDb = mDbHelper.getReadableDatabase();
-        JSONObject JSONinfo = new JSONObject();
-        String info = null;
-
-        // We set an array of columns...
-        String[] columns = {    VentraCheckDBContract.VentraCardInfo._ID,
-                VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_CARD_NB,
-                VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_EXPYEAR,
-                VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_EXPMONTH   };
-
-        // ...and use it in our query to know if there are any cards in the DB
-        Cursor c = mDb.query(VentraCheckDBContract.VentraCardInfo.TABLE_NAME, columns, null, null, null, null, null);
-
-        if(c.getCount() > 0) {
-            try {
-                c.moveToFirst();
-                //We format the info in a JSON structure
-                JSONinfo.put("SerialNumber", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_CARD_NB)));
-                JSONinfo.put("ExpireMonth", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_EXPMONTH)));
-                JSONinfo.put("ExpireYear", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_EXPYEAR)));
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // We cast the JSON into a string to return it
-            info = JSONinfo.toString();
-        }
-
-        return info;
-    }
-
-    public String getDatafromDB(){
-        SQLiteDatabase mDb = mDbHelper.getReadableDatabase();
-        JSONObject JSONdata = new JSONObject();
-        String data = null;
-
-        // We set an array of columns...
-        String[] columns = {    VentraCheckDBContract.VentraCardData._ID,
-                VentraCheckDBContract.VentraCardData.COLUMN_NAME_MEDIA_NICK,
-                VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB,
-                VentraCheckDBContract.VentraCardData.COLUMN_NAME_ACCOUNT_ID,
-                VentraCheckDBContract.VentraCardData.COLUMN_NAME_ACCOUNT_STATUS,
-                VentraCheckDBContract.VentraCardData.COLUMN_NAME_BALANCE,
-                VentraCheckDBContract.VentraCardData.COLUMN_NAME_PASSES,
-                VentraCheckDBContract.VentraCardData.COLUMN_NAME_RIDER_CLASS   };
-
-        // ...and use it in our query to know if there are any cards in the DB
-        Cursor c = mDb.query(VentraCheckDBContract.VentraCardData.TABLE_NAME, columns, null, null, null, null, null);
-
-        if(c.getCount() > 0) {
-            try {
-                c.moveToLast();
-                JSONdata.put("mediaNickname", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_MEDIA_NICK)));
-                JSONdata.put("partialMediaSerialNbr", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB)));
-                JSONdata.put("transitAccountId", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_ACCOUNT_ID)));
-                JSONdata.put("accountStatus", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_ACCOUNT_STATUS)));
-                JSONdata.put("totalBalanceAndPretaxBalance", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_BALANCE)));
-                JSONdata.put("passes", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_PASSES)));
-                JSONdata.put("riderClassDescription", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_RIDER_CLASS)));
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // We have to cast the JSON structure into a string to return it
-            data = JSONdata.toString();
-
-        }
-
-        return data;
-    }
 
 }

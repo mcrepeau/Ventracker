@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
+import android.view.View;
+import android.widget.Button;
 
 
 public class MainActivity extends ActionBarActivity
@@ -22,15 +24,15 @@ public class MainActivity extends ActionBarActivity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
-    private DisplayCardFragment mDisplayCardFragment;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    private boolean mMenuState;
 
-    private String result_info;
-    private String result_data;
+    protected String result_info;
+    protected String result_data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,12 @@ public class MainActivity extends ActionBarActivity
         Intent intent = getIntent();
         result_info = intent.getStringExtra(CheckCardActivity.EXTRA_CARD_INFO);
         result_data = intent.getStringExtra(CheckCardActivity.EXTRA_CARD_DATA);
+
+        // Hack because onNavigationDrawerItemSelected is initially called before onCreate...
+        // and we want to get the result_data displayed
+        onNavigationDrawerItemSelected(0);
+
+        //Add result_data to DB?? Or maybe do it in the CheckCardActivity...
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -59,6 +67,11 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
+    public void onResume() {
+        super.onResume();  // Always call the superclass method first
+    }
+
+    @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -66,20 +79,22 @@ public class MainActivity extends ActionBarActivity
 
         switch (position) {
             case 1:
-                //findViewById(R.id.action_example).setVisibility(View.GONE);
                 fragmentManager.beginTransaction()
                         .replace(R.id.fragment_placeholder, ManageCardsFragment.newInstance())
                         .commit();
+                mMenuState = false;
+                invalidateOptionsMenu();
                 break;
             case 2:
                 intent = new Intent(this, CheckCardActivity.class);
                 startActivity(intent);
                 break;
             default:
-                Log.v("Ventra Check", " " + result_data);
                 fragmentManager.beginTransaction()
                         .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, result_data))
                         .commit();
+                mMenuState = true;
+                invalidateOptionsMenu();
                 break;
         }
 
@@ -112,6 +127,10 @@ public class MainActivity extends ActionBarActivity
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
             getMenuInflater().inflate(R.menu.display_card, menu);
+            if (mMenuState == false)
+                menu.findItem(R.id.action_example).setVisible(false);
+            else
+                menu.findItem(R.id.action_example).setVisible(true);
             restoreActionBar();
             return true;
         }
@@ -133,6 +152,22 @@ public class MainActivity extends ActionBarActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.v("Ventra", "Inside of onRestoreInstanceState");
+
+        result_data = savedInstanceState.getString("result_data");
+        result_info = savedInstanceState.getString("result_info");
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putString("result_data", result_data);
+        savedInstanceState.putString("result_info", result_info);
     }
 
     @Override

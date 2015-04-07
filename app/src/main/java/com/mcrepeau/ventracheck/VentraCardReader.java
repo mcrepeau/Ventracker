@@ -112,7 +112,7 @@ public class VentraCardReader {
 
 
             } catch (IOException e) {
-                Log.v("Ventra NFC", e.getMessage());
+                Log.v("Ventra NFC", " " + e.getMessage());
             }
         }
 

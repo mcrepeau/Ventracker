@@ -12,8 +12,10 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.support.v4.app.Fragment;
 
-
-import com.mcrepeau.ventracheck.dummy.DummyContent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A fragment representing a list of Items.
@@ -26,16 +28,11 @@ import com.mcrepeau.ventracheck.dummy.DummyContent;
  */
 public class ManageCardsFragment extends Fragment implements AbsListView.OnItemClickListener {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    public static Map<String, String> CARDS;
 
     private OnFragmentInteractionListener mListener;
+
+    private VentraCheckDBHelper mDbHelper;
 
     /**
      * The fragment's ListView/GridView.
@@ -52,8 +49,6 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
     public static ManageCardsFragment newInstance() {
         ManageCardsFragment fragment = new ManageCardsFragment();
         Bundle args = new Bundle();
-        //args.putString(ARG_PARAM1, param1);
-        //args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -69,14 +64,17 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        // We instantiate the DB Helper and open the DB
+        mDbHelper = new VentraCheckDBHelper(getActivity().getApplicationContext());
+
+        CARDS = mDbHelper.getAllCardsfromDB();
+        List<String> cardNames = new ArrayList<String>(CARDS.keySet());
 
         // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+        mAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_list_item_1, android.R.id.text1, cardNames);
+
+        mDbHelper.close();
     }
 
     @Override
@@ -117,7 +115,7 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+            mListener.onFragmentInteraction(CARDS.get(position));
         }
     }
 
