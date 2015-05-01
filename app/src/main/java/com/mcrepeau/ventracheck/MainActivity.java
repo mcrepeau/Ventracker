@@ -1,11 +1,13 @@
 package com.mcrepeau.ventracheck;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.content.Intent;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -13,23 +15,36 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
-import android.view.View;
-import android.widget.Button;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks, DisplayCardFragment.OnFragmentInteractionListener, ManageCardsFragment.OnFragmentInteractionListener {
+        implements NavDrawerFragment.NavigationDrawerCallbacks, DisplayCardFragment.OnFragmentInteractionListener, ManageCardsFragment.OnFragmentInteractionListener {
+
+    private static final String TAG = "MainActivity";
+
+    private GetCardDataTask mGetCardDataTask = null;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+    private NavDrawerFragment mNavDrawerFragment;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
     private boolean mMenuState;
+
+    private VentraCheckDBHelper mDbHelper;
+
+    public static Map<String, String> CARDS;
+    public static List<String> cardInfos;
 
     protected String result_info;
     protected String result_data;
@@ -44,14 +59,13 @@ public class MainActivity extends ActionBarActivity
         result_info = intent.getStringExtra(CheckCardActivity.EXTRA_CARD_INFO);
         result_data = intent.getStringExtra(CheckCardActivity.EXTRA_CARD_DATA);
 
-        // Hack because onNavigationDrawerItemSelected is initially called before onCreate...
-        // and we want to get the result_data displayed
-        onNavigationDrawerItemSelected(0);
+        // We instantiate the DB Helper and open the DB
+        mDbHelper = new VentraCheckDBHelper(getApplicationContext());
 
-        //Add result_data to DB?? Or maybe do it in the CheckCardActivity...
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavDrawerFragment = (NavDrawerFragment)
+                fragmentManager.findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -60,9 +74,34 @@ public class MainActivity extends ActionBarActivity
         getSupportActionBar().setHomeButtonEnabled(true);
 
         // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
+        mNavDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        // Hack because onNavigationDrawerItemSelected is initially called before onCreate...
+        // and we want to get the result_data displayed
+        if (result_info != null && result_data != null){
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, result_data, true))
+                    .commit();
+            mMenuState = true;
+            invalidateOptionsMenu();
+        }
+        else {
+            CARDS = mDbHelper.getAllCardsfromDB();
+            cardInfos = new ArrayList<String>(CARDS.keySet());
+
+            if (cardInfos.size() == 0){
+                // If there is no card in the DB and we don't come from the CheckCardActivity, we go to the CheckCardActivity
+                intent = new Intent(this, CheckCardActivity.class);
+                startActivity(intent);
+            }
+            else {
+                //Otherwise, we automatically go to the first element in the menu
+                onNavigationDrawerItemSelected(0, 0);
+            }
+
+        }
 
     }
 
@@ -72,12 +111,21 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+    public void onNavigationDrawerItemSelected(int groupPosition, int childPosition) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         Intent intent;
 
-        switch (position) {
+        Log.v(TAG, "drawer position: " + groupPosition);
+
+        switch (groupPosition) {
+            case 0:
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(childPosition))
+                        .commit();
+                mMenuState = true;
+                invalidateOptionsMenu();
+                break;
             case 1:
                 fragmentManager.beginTransaction()
                         .replace(R.id.fragment_placeholder, ManageCardsFragment.newInstance())
@@ -89,14 +137,23 @@ public class MainActivity extends ActionBarActivity
                 intent = new Intent(this, CheckCardActivity.class);
                 startActivity(intent);
                 break;
-            default:
-                fragmentManager.beginTransaction()
-                        .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, result_data))
-                        .commit();
-                mMenuState = true;
-                invalidateOptionsMenu();
-                break;
         }
+
+    }
+
+    @Override
+    public void onRefreshCardData(int position){
+        // Load card info from DB
+
+        CARDS = mDbHelper.getAllCardsfromDB();
+        cardInfos = new ArrayList<String>(CARDS.values());
+
+        //showProgress(true);
+        result_info = cardInfos.get(position);
+        Log.v(TAG, result_info);
+
+        mGetCardDataTask = new GetCardDataTask();
+        mGetCardDataTask.execute((Void) null);
 
     }
 
@@ -122,15 +179,15 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
+        if (!mNavDrawerFragment.isDrawerOpen()) {
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
             getMenuInflater().inflate(R.menu.display_card, menu);
             if (mMenuState == false)
-                menu.findItem(R.id.action_example).setVisible(false);
+                menu.findItem(R.id.action_refresh).setVisible(false);
             else
-                menu.findItem(R.id.action_example).setVisible(true);
+                menu.findItem(R.id.action_refresh).setVisible(true);
             restoreActionBar();
             return true;
         }
@@ -157,7 +214,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Log.v("Ventra", "Inside of onRestoreInstanceState");
+        Log.v(TAG, "Inside of onRestoreInstanceState");
 
         result_data = savedInstanceState.getString("result_data");
         result_info = savedInstanceState.getString("result_info");
@@ -178,6 +235,92 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onFragmentInteraction(Uri uri){
 
+    }
+
+    public class GetCardDataTask extends AsyncTask<Void, Void, Boolean> {
+
+        GetCardDataTask() {
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            try {
+                // We proceed with checking the card info
+                result_data = getCardData(result_info);
+            } catch (Exception e) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mGetCardDataTask = null;
+            //showProgress(false);
+
+            if (success) {
+                // Refresh the DisplayCardFragment
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, result_data, false))
+                        .commit();
+
+                mDbHelper.addDatatoDB(result_data);
+            } else {
+                // TODO: Error handling
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mGetCardDataTask = null;
+            //showProgress(false);
+        }
+    }
+
+    public String getCardData(String cardinfo) {
+        // Gets the URL from the UI's text field.
+        JSONObject JSONrequestrsp;
+        JSONObject JSONcarddata;
+        JSONObject JSONcardinfo = null;
+        String result = null;
+
+        try {
+            JSONcardinfo = new JSONObject(cardinfo);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+        VentraHttpInterface ventraHttpInterface = new VentraHttpInterface();
+
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+            ventraHttpInterface.loadPage();
+            JSONrequestrsp = ventraHttpInterface.makePostRequest(JSONcardinfo);
+            //Parse JSONCardInfo and process its output
+            try{
+                if(JSONrequestrsp.getJSONObject("d").getBoolean("success") == true){
+                    JSONcarddata = JSONrequestrsp.getJSONObject("d").getJSONObject("result");
+                    result = JSONcarddata.toString();
+                }
+                else {
+                    //TODO Better and more comprehensive error handling
+                    result = JSONrequestrsp.getJSONObject("d").getString("error");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            //mTextView.setText("No network connection available.");
+        }
+
+        return result;
     }
 
 }

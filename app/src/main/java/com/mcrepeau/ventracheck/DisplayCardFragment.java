@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,9 @@ import java.util.Map;
  * create an instance of this fragment.
  */
 public class DisplayCardFragment extends Fragment {
+
+    private static final String TAG = "DisplayCardFragment";
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -48,8 +52,13 @@ public class DisplayCardFragment extends Fragment {
 
     private VentraCheckDBHelper mDbHelper;
 
+    public static Map<String, String> CARDS;
+    public static List<String> cardNames;
+
     private String result_info;
     private String result_data;
+    private boolean new_card;
+    private int position;
 
     private double BUS_RIDE_COST = 2.00;
     private double TRAIN_RIDE_COST = 2.25;
@@ -58,21 +67,31 @@ public class DisplayCardFragment extends Fragment {
 
     public final static String EXTRA_CARD_INFO = "com.mcrepeau.ventracheck.CARD_INFO";
     public final static String EXTRA_CARD_DATA = "com.mcrepeau.ventracheck.CARD_DATA";
+    public final static String EXTRA_CARD_NB = "com.mcrepeau.ventracheck.CARD_NB";
+    public final static String EXTRA_NEW_CARD = "com.mcrepeau.ventracheck.NEW_CARD";
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param cardinfo Parameter 1.
-     * @param carddata Parameter 2.
-     * @return A new instance of fragment DisplayCardFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static DisplayCardFragment newInstance(String cardinfo, String carddata) {
+
+    public static DisplayCardFragment newInstance(String cardinfo, String carddata, boolean newcard) {
         DisplayCardFragment fragment = new DisplayCardFragment();
         Bundle args = new Bundle();
         args.putString(EXTRA_CARD_INFO, cardinfo);
         args.putString(EXTRA_CARD_DATA, carddata);
+        args.putBoolean(EXTRA_NEW_CARD, newcard);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static DisplayCardFragment newInstance(int position){
+        DisplayCardFragment fragment = new DisplayCardFragment();
+        Bundle args = new Bundle();
+        args.putInt(EXTRA_CARD_NB, position);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static DisplayCardFragment newInstance(){
+        DisplayCardFragment fragment = new DisplayCardFragment();
+        Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
     }
@@ -84,9 +103,13 @@ public class DisplayCardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+        if (getArguments().size() == 3) {
             result_info = getArguments().getString(EXTRA_CARD_INFO);
             result_data = getArguments().getString(EXTRA_CARD_DATA);
+            new_card = getArguments().getBoolean(EXTRA_NEW_CARD);
+        }
+        else if (getArguments().size() == 1){
+            position = getArguments().getInt(EXTRA_CARD_NB);
         }
 
     }
@@ -98,30 +121,38 @@ public class DisplayCardFragment extends Fragment {
         // We instantiate the DB Helper and open the DB
         mDbHelper = new VentraCheckDBHelper(getActivity().getApplicationContext());
 
-        Map<String, String> cardinfo = mDbHelper.getAllCardsfromDB();
+        CARDS = mDbHelper.getAllCardsfromDB();
+        cardNames = new ArrayList<String>(CARDS.keySet());
+
+        int nb_args = getArguments().size();
 
         // If we don't come from the MainActivity and no cards are in the DB we go to the CheckCardActivity
         // If there is a card in the DB we fetch its data and display it
         // Otherwise we just display the data from the card scanned
-        if (result_data == null){
-            Log.v("Ventra", "No card scanned");
-            if(cardinfo.size() == 0){
-                Log.v("Ventra DB", "No cards in the database");
-                startActivity(new Intent(getActivity(), CheckCardActivity.class));
-            }
-            else{
-                Log.v("Ventra DB", "One or more cards are present in the database");
-                // Check and load info for the
-                //String carddata = mDbHelper.getCardDatafromDB();
-                //populateInfo(carddata);
-                // TODO: Maybe add a condition to limit the number of cards in the DB
-                //mAddCardButton.setVisibility(View.GONE);
-            }
-        }
-        else {
-            populateInfo(result_data);
-        }
+        switch(nb_args){
+            case 1:
+                if (cardNames.size() == 0){
+                    Log.v(TAG, "No cards in the database");
+                    startActivity(new Intent(getActivity(), CheckCardActivity.class));
+                }
+                else {
+                    Log.v(TAG, "Card selected");
+                    List<String> carddata = mDbHelper.getCardDatafromDB(cardNames, position);
+                    if (carddata.size() == 0) {
+                        Log.v(TAG, "No data present in the DB for this card, need to refresh");
+                    }
+                    else {
+                        populateInfo(carddata.get(carddata.size()-1));
+                    }
+                    mAddCardButton.setVisibility(View.GONE);
+                }
+                break;
+            case 2:
+                Log.v(TAG, "Card scanned or data refreshed");
+                populateInfo(result_data);
 
+                break;
+        }
 
     }
 
@@ -132,7 +163,7 @@ public class DisplayCardFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_display_card, container, false);
         //View rootView = inflater.inflate(R.layout.fragment_display_card, null);
         // We instantiate the UI elements
-        mAddCardButton = (Button) rootView.findViewById(R.id.check_card_button);
+        mAddCardButton = (Button) rootView.findViewById(R.id.add_card_button);
 
         //mMediaNickname = (TextView) findViewById(R.id.mediaNicknameValue);
         mPartialMediaSerialNbr = (TextView) rootView.findViewById(R.id.partialMediaSerialNbr);

@@ -19,22 +19,28 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class NavDrawerFragment extends Fragment {
+
+    private static final String TAG = "NavDrawerFragment";
 
     /**
      * Remember the position of the selected item.
      */
-    private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
+    private static final String STATE_SELECTED_GROUP_POSITION = "selected_navigation_drawer_group_position";
+    private static final String STATE_SELECTED_CHILD_POSITION = "selected_navigation_drawer_child_position";
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -53,14 +59,23 @@ public class NavigationDrawerFragment extends Fragment {
     private ActionBarDrawerToggle mDrawerToggle;
 
     private DrawerLayout mDrawerLayout;
-    private ListView mDrawerListView;
+    private ExpandableListView mDrawerMenuExpListView;
+    ExpandableListAdapter listAdapter;
+    List<String> listDataHeader;
+    HashMap<String, List<String>> listDataChild;
     private View mFragmentContainerView;
 
-    private int mCurrentSelectedPosition = 0;
+    private int mCurrentSelectedGroupPosition = 0;
+    private int mCurrentSelectedChildPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
-    public NavigationDrawerFragment() {
+    public static Map<String, String> CARDS;
+    public static List<String> cardNames;
+
+    private VentraCheckDBHelper mDbHelper;
+
+    public NavDrawerFragment() {
     }
 
     @Override
@@ -74,12 +89,14 @@ public class NavigationDrawerFragment extends Fragment {
 
 
         if (savedInstanceState != null) {
-            mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
+            mCurrentSelectedGroupPosition = savedInstanceState.getInt(STATE_SELECTED_GROUP_POSITION);
+            if (mCurrentSelectedGroupPosition == 0)
+                mCurrentSelectedChildPosition = savedInstanceState.getInt(STATE_SELECTED_CHILD_POSITION);
             mFromSavedInstanceState = true;
         }
 
         // Select either the default item (0) or the last selected item.
-        selectItem(mCurrentSelectedPosition);
+        selectItem(mCurrentSelectedGroupPosition, mCurrentSelectedChildPosition);
     }
 
     @Override
@@ -92,28 +109,61 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mDrawerListView = (ListView) inflater.inflate(
+        mDrawerMenuExpListView = (ExpandableListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
-        mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        // preparing list data
+        populateMenu();
+
+        ExpandableListAdapter adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
+        mDrawerMenuExpListView.setAdapter(adapter);
+
+        // Listview Group click listener
+        mDrawerMenuExpListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(position);
+            public boolean onGroupClick(ExpandableListView parent, View v,
+                                        int groupPosition, long id) {
+                selectItem(groupPosition, -1);
+                if (groupPosition > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         });
 
-        mDrawerListView.setAdapter(new ArrayAdapter<String>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                new String[]{
-                        getString(R.string.title_section1),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
-                }));
+        // Listview on child click listener
+        mDrawerMenuExpListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
-        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+                selectItem(groupPosition, childPosition);
+                return false;
+            }
+        });
 
-        return mDrawerListView;
+        return mDrawerMenuExpListView;
+    }
+
+    private void populateMenu() {
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, List<String>>();
+
+        // We instantiate the DB Helper and open the DB
+        mDbHelper = new VentraCheckDBHelper(getActivity().getApplicationContext());
+
+        CARDS = mDbHelper.getAllCardsfromDB();
+        cardNames = new ArrayList<String>(CARDS.keySet());
+
+        // Adding parent data
+        listDataHeader.add(getString(R.string.title_section1));
+        listDataHeader.add(getString(R.string.title_section2));
+        listDataHeader.add(getString(R.string.title_section3));
+
+        listDataChild.put(listDataHeader.get(0), cardNames); // Header, Child data
+
     }
 
     public boolean isDrawerOpen() {
@@ -166,6 +216,12 @@ public class NavigationDrawerFragment extends Fragment {
                     return;
                 }
 
+                populateMenu();
+
+                ExpandableListAdapter adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
+                mDrawerMenuExpListView.setAdapter(adapter);
+                mDrawerMenuExpListView.expandGroup(0, true);
+
                 if (!mUserLearnedDrawer) {
                     // The user manually opened the drawer; store this flag to prevent auto-showing
                     // the navigation drawer automatically in the future.
@@ -196,19 +252,23 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
-    private void selectItem(int position) {
+    private void selectItem(int groupPosition, int childPosition) {
 
-        mCurrentSelectedPosition = position;
+        mCurrentSelectedGroupPosition = groupPosition;
+        mCurrentSelectedChildPosition = childPosition;
 
-        if (mDrawerListView != null) {
-            mDrawerListView.setItemChecked(position, true);
+        if (mDrawerMenuExpListView != null) {
+            //mDrawerMenuExpListView.setItemChecked(groupPosition, true);
         }
-        if (mDrawerLayout != null) {
-            mDrawerLayout.closeDrawer(mFragmentContainerView);
-        }
-        if (mCallbacks != null) {
-            Log.v("Ventra Drawer", "item selected " + position);
-            mCallbacks.onNavigationDrawerItemSelected(position);
+
+        if (groupPosition != 0 || childPosition != -1) {
+            if (mDrawerLayout != null) {
+                mDrawerLayout.closeDrawer(mFragmentContainerView);
+            }
+            if (mCallbacks != null) {
+                Log.v(TAG, "selection: group " + groupPosition + ", child " + childPosition);
+                mCallbacks.onNavigationDrawerItemSelected(groupPosition, childPosition);
+            }
         }
 
     }
@@ -232,7 +292,9 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
+        outState.putInt(STATE_SELECTED_GROUP_POSITION, mCurrentSelectedGroupPosition);
+        if (mCurrentSelectedGroupPosition == 0)
+            outState.putInt(STATE_SELECTED_CHILD_POSITION, mCurrentSelectedChildPosition);
     }
 
     @Override
@@ -259,8 +321,9 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
 
-        if (item.getItemId() == R.id.action_example) {
-            Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
+        if (item.getItemId() == R.id.action_refresh) {
+            Log.v(TAG, "User requested refresh data for card " + mCurrentSelectedChildPosition);
+            mCallbacks.onRefreshCardData(mCurrentSelectedChildPosition);
             return true;
         }
 
@@ -289,6 +352,9 @@ public class NavigationDrawerFragment extends Fragment {
         /**
          * Called when an item in the navigation drawer is selected.
          */
-        void onNavigationDrawerItemSelected(int position);
+        void onNavigationDrawerItemSelected(int groupPosition, int childPosition);
+
+        //TODO: Implement a callback to MainActivity to retrieve associated cardinfo and refresh carddata
+        void onRefreshCardData(int position);
     }
 }

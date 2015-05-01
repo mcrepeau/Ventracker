@@ -26,6 +26,9 @@ import java.util.Map;
  */
 
 public class VentraCheckDBHelper extends SQLiteOpenHelper {
+
+    private static final String TAG = "VentraCheckDBHelper";
+
     // If you change the database schema, you must increment the database version.
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "ventracheck.db";
@@ -41,10 +44,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // This database is only a cache for online data, so its upgrade policy is
-        // to simply to discard the data and start over
-        //db.execSQL(VentraCheckDBContract.VentraCardInfo.SQL_DELETE_ENTRIES);
-        //onCreate(db);
+
     }
 
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -69,7 +69,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
 
             // Insert the new row, returning the primary key value of the new row
             newRowId = db.insert(VentraCheckDBContract.VentraCardInfo.TABLE_NAME, null, card_values);
-            Log.v("Ventra DB", "Card info added to the DB");
+            Log.v(TAG, "Card info added to the DB");
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -82,7 +82,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase mDb = this.getWritableDatabase();
         JSONObject JSONCardData;
         Calendar c = GregorianCalendar.getInstance();
-        Log.v("Ventra time", "Time of record" + c.getTime().toString());
+        Log.v(TAG, "Time of record" + c.getTime().toString());
         long newRowId = -1;
 
         try{
@@ -103,13 +103,19 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
 
             // Insert the new row, returning the primary key value of the new row
             newRowId = db.insert(VentraCheckDBContract.VentraCardData.TABLE_NAME, null, card_values);
-            Log.v("Ventra DB", "Card data added to the DB");
+            Log.v(TAG, "Card data added to the DB");
         } catch (Exception e){
             e.printStackTrace();
         }
         mDb.close();
 
         return newRowId;
+    }
+
+    public String getCardInfofromDB(){
+        String cardinfo = null;
+
+        return cardinfo;
     }
 
     public Map<String, String> getAllCardsfromDB(){
@@ -147,18 +153,26 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
                 // We cast the JSON into a string to return it
                 String last4 = cardnb == null || cardnb.length() < 4 ?
                         cardnb : cardnb.substring(cardnb.length() - 4);
+
                 cardinfo.put("VentraCard *" + last4, JSONinfo.toString());
-                Log.v("Ventra DB", "VentraCard *" + last4 + "/" + JSONinfo.toString());
+                Log.v(TAG, "VentraCard *" + last4 + "/" + JSONinfo.toString());
             }
         }
 
         return cardinfo;
     }
 
-    public List<String> getCardDatafromDB(String last4cardnb){
+    public List<String> getCardDatafromDB(List<String> cards, int position){
         SQLiteDatabase mDb = this.getReadableDatabase();
         JSONObject JSONdata = new JSONObject();
         List<String> carddata = new ArrayList<String>();
+
+        String cardinfo = cards.get(position);
+
+        String last4 = cardinfo == null || cardinfo.length() < 4 ?
+                cardinfo : cardinfo.substring(cardinfo.length() - 4);
+
+        Log.v(TAG, "Fetching data of the card ending in " + last4);
 
         // We set an array of columns...
         String[] columns = {    VentraCheckDBContract.VentraCardData._ID,
@@ -175,7 +189,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
 
         if(c.getCount() > 0) {
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
-                if (last4cardnb == c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB))) {
+                if (last4.equals(c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB)))) {
                     try {
                         JSONdata.put("mediaNickname", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_MEDIA_NICK)));
                         JSONdata.put("partialMediaSerialNbr", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB)));
@@ -190,12 +204,30 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
 
                     // We have to cast the JSON structure into a string to return it
                     carddata.add(JSONdata.toString());
+
+                    Log.v(TAG, "VentraCard *" + last4 + "/" + JSONdata.toString());
                 }
             }
-
         }
 
         return carddata;
+    }
+
+    public boolean removeCardFromDB(List<String> cards, int position){
+        SQLiteDatabase mDb = this.getWritableDatabase();
+        String cardinfo = cards.get(position);
+
+        String last4 = cardinfo == null || cardinfo.length() < 4 ?
+                cardinfo : cardinfo.substring(cardinfo.length() - 4);
+
+        Log.v(TAG, "Deletion of the card ending in " + last4);
+
+        // First delete all the card data entries ?
+        mDb.delete(VentraCheckDBContract.VentraCardData.TABLE_NAME, VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB + " = '" + last4 + "';", null);
+
+        // Then delete in the card info table
+        return mDb.delete(VentraCheckDBContract.VentraCardInfo.TABLE_NAME, VentraCheckDBContract.VentraCardInfo.COLUMN_NAME_CARD_NB + " LIKE '%" + last4 + "';", null) > 0;
+
     }
 
 }

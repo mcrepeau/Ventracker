@@ -2,18 +2,19 @@ package com.mcrepeau.ventracheck;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.support.v4.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,11 +29,17 @@ import java.util.Map;
  */
 public class ManageCardsFragment extends Fragment implements AbsListView.OnItemClickListener {
 
+    private static final String TAG = "ManageCardsFragment";
+
     public static Map<String, String> CARDS;
+    public static List<String> cardNames;
 
     private OnFragmentInteractionListener mListener;
 
     private VentraCheckDBHelper mDbHelper;
+
+    private Button mRemoveCardButton;
+    private int mItemSelected;
 
     /**
      * The fragment's ListView/GridView.
@@ -68,11 +75,10 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
         mDbHelper = new VentraCheckDBHelper(getActivity().getApplicationContext());
 
         CARDS = mDbHelper.getAllCardsfromDB();
-        List<String> cardNames = new ArrayList<String>(CARDS.keySet());
+        cardNames = new ArrayList<String>(CARDS.keySet());
 
-        // TODO: Change Adapter to display your content
         mAdapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, cardNames);
+                R.layout.cards_list_item, android.R.id.text1, cardNames);
 
         mDbHelper.close();
     }
@@ -84,10 +90,21 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
 
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
-        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
+
+        mRemoveCardButton = (Button) view.findViewById(R.id.remove_card_button);
+
+        mRemoveCardButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mDbHelper.removeCardFromDB(cardNames, mItemSelected);
+                CARDS = mDbHelper.getAllCardsfromDB();
+                // Reload list
+                rePopulateCardsList();
+            }
+        });
 
         return view;
     }
@@ -115,7 +132,10 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
+            mListView.setItemChecked(position, true);
             mListener.onFragmentInteraction(CARDS.get(position));
+            mItemSelected = position;
+            Log.v(TAG, "card selected " + position);
         }
     }
 
@@ -130,6 +150,14 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
         if (emptyView instanceof TextView) {
             ((TextView) emptyView).setText(emptyText);
         }
+    }
+
+    public void rePopulateCardsList(){
+
+        mAdapter = new ArrayAdapter<String>(getActivity(),
+                R.layout.cards_list_item, android.R.id.text1, new ArrayList<String>(CARDS.keySet()));
+
+        mListView.setAdapter(mAdapter);
     }
 
     /**

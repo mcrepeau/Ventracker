@@ -32,6 +32,8 @@ public class CheckCardActivity extends Activity {
 
     private CheckCardTask mCheckCardTask = null;
 
+    private static final String TAG = "CheckCardActivity";
+
     // UI references.
     private TextView mTextView;
     private TextView mExpiryView;
@@ -118,10 +120,6 @@ public class CheckCardActivity extends Activity {
         handleIntent(intent);
     }
 
-
-    /**
-     * Adds the card to the SQLite DB
-     */
     public void CheckCard() {
         if (mCheckCardTask != null) {
             return;
@@ -237,7 +235,7 @@ public class CheckCardActivity extends Activity {
         protected Boolean doInBackground(Void... params) {
             try {
                 // We proceed with checking the card info
-                getCardInfo(mNBCard, mExpMonth, mExpYear);
+                getCardData(mNBCard, mExpMonth, mExpYear);
             } catch (Exception e) {
                 return false;
             }
@@ -264,7 +262,7 @@ public class CheckCardActivity extends Activity {
         }
     }
 
-    public void getCardInfo(String cardnb, String expmonth, String expyear) {
+    public void getCardData(String cardnb, String expmonth, String expyear) {
         // Gets the URL from the UI's text field.
         JSONObject JSONrequestrsp;
         JSONObject JSONcarddata;
@@ -323,7 +321,7 @@ public class CheckCardActivity extends Activity {
         JSONObject carddata = new JSONObject();
 
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
-            Log.v("Ventra NFC", "IsoDep Tag detected");
+            Log.v(TAG, "IsoDep Tag detected");
             // In case we would still use the Tech Discovered Intent
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 

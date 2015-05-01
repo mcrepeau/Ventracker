@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.IBinder;
 
 public class UpdateCardInfoService extends Service {
+
+    private static final String TAG = "UpdateCardInfoService";
+
     public UpdateCardInfoService() {
     }
 

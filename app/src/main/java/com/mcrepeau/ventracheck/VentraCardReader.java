@@ -14,6 +14,8 @@ import java.util.Arrays;
  */
 public class VentraCardReader {
 
+    private static final String TAG = "VentraCardReader";
+
     public JSONObject readCardData(Tag tag){
         IsoDep iso = IsoDep.get(tag);
         JSONObject carddata = new JSONObject();
@@ -21,9 +23,9 @@ public class VentraCardReader {
             try {
                 iso.connect();
                 // txMessage is a TextView object used for debugging purpose
-                Log.v("Ventra NFC Info", "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
+                Log.v(TAG, "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
                 iso.setTimeout(2000);
-                Log.v("Ventra NFC Info", "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
+                Log.v(TAG, "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
 
                 byte[] command1 = new byte[]{   (byte) 0x00,
                         (byte) 0xA4,
@@ -46,10 +48,10 @@ public class VentraCardReader {
                         (byte) 0x31,
                         (byte) 0x00};
 
-                Log.v("Ventra NFC Cmd", bytesToHex(command1));
+                Log.v(TAG, bytesToHex(command1));
                 byte[] response1 = iso.transceive(command1);
 
-                Log.v("Ventra NFC Rsp", bytesToHex(response1));
+                Log.v(TAG, bytesToHex(response1));
 
                 byte[] command2 = new byte[]{   (byte) 0x00,
                         (byte) 0xA4,
@@ -65,10 +67,10 @@ public class VentraCardReader {
                         (byte) 0x10,
                         (byte) 0x00};
 
-                Log.v("Ventra NFC Cmd", bytesToHex(command2));
+                Log.v(TAG, bytesToHex(command2));
                 byte[] response2 = iso.transceive(command2);
 
-                Log.v("Ventra NFC Rsp", bytesToHex(response2));
+                Log.v(TAG, bytesToHex(response2));
 
                 byte[] command3 = new byte[]{   (byte) 0x80,
                         (byte) 0xA8,
@@ -79,10 +81,10 @@ public class VentraCardReader {
                         (byte) 0x00,
                         (byte) 0x00};
 
-                Log.v("Ventra NFC Cmd", bytesToHex(command3));
+                Log.v(TAG, bytesToHex(command3));
                 byte[] response3 = iso.transceive(command3);
 
-                Log.v("Ventra NFC Rsp", bytesToHex(response3));
+                Log.v(TAG, bytesToHex(response3));
 
                 byte[] command4 = new byte[]{   (byte) 0x00,
                         (byte) 0xB2,
@@ -90,17 +92,17 @@ public class VentraCardReader {
                         (byte) 0x0C,
                         (byte) 0x00};
 
-                Log.v("Ventra NFC Cmd", bytesToHex(command4));
+                Log.v(TAG, bytesToHex(command4));
                 byte[] response4 = iso.transceive(command4);
 
-                Log.v("Ventra NFC Rsp", bytesToHex(response4));
+                Log.v(TAG, bytesToHex(response4));
 
                 String cardnumber = new String(Arrays.copyOfRange(response4, 10, 26));
-                Log.v("Ventra Card number", cardnumber);
+                Log.v(TAG, cardnumber);
 
                 String expyear = new String(Arrays.copyOfRange(response4, 30, 32));
                 String expmonth = new String(Arrays.copyOfRange(response4, 32, 34));
-                Log.v("Ventra Expiration info", expmonth + "/" + expyear);
+                Log.v(TAG, expmonth + "/" + expyear);
 
                 try{
                     carddata.put("cardnumber", cardnumber);
@@ -112,7 +114,7 @@ public class VentraCardReader {
 
 
             } catch (IOException e) {
-                Log.v("Ventra NFC", " " + e.getMessage());
+                Log.v(TAG, " " + e.getMessage());
             }
         }
 

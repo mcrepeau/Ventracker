@@ -24,6 +24,8 @@ import javax.net.ssl.HttpsURLConnection;
  */
 public class VentraHttpInterface {
 
+    private static final String TAG = "VentraHttpInterface";
+
     private String _cookie = "";
     private String _authtoken = "";
 
@@ -49,10 +51,10 @@ public class VentraHttpInterface {
                     }
                 }
 
-                Log.v("HTTP GET Cookie", _cookie);
+                Log.v(TAG, _cookie);
 
                 String responseString = readStream(urlConnection.getInputStream());
-                Log.v("HTTP GET Rsp", responseString);
+                Log.v(TAG, responseString);
 
                 if(_authtoken == ""){
                     //parse the responseString for <input type="hidden" name="hdnRequestVerificationToken" id="hdnRequestVerificationToken" value="[a-zA-Z0-9]+"/>
@@ -63,10 +65,10 @@ public class VentraHttpInterface {
                     }
                 }
 
-                Log.v("HTTP GET AuthToken", _authtoken);
+                Log.v(TAG, _authtoken);
 
             }else{
-                Log.v("HTTP", "Response code:" + responseCode);
+                Log.v(TAG, "Response code:" + responseCode);
             }
 
         } catch (Exception e) {
@@ -121,7 +123,7 @@ public class VentraHttpInterface {
             e.printStackTrace();
         }
 
-        Log.v("HTTP POST Req", JSONrequest.toString());
+        Log.v(TAG, JSONrequest.toString());
 
         try {
             String responseString;
@@ -151,7 +153,7 @@ public class VentraHttpInterface {
 
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             responseString = readStream(in);
-            Log.d("HTTP POST Rsp:", responseCode + " - " + responseString);
+            Log.v(TAG, responseCode + " - " + responseString);
             in.close();
             JSONresponse = new JSONObject(responseString);
         } catch (ClientProtocolException e) {
