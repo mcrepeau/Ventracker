@@ -29,6 +29,9 @@ public class VentraHttpInterface {
     private String _cookie = "";
     private String _authtoken = "";
 
+    /**
+     * Loads the Ventra website page to get the cookies and the authentication token
+     */
     public void loadPage(){
         URL urladdress;
         String url = "https://www.ventrachicago.com/balance/";
@@ -80,6 +83,11 @@ public class VentraHttpInterface {
 
     }
 
+    /**
+     * Reads the stream coming from the HTTP response for parsing
+     * @param in
+     * @return a String with the HTTP response
+     */
     private String readStream(InputStream in) {
         BufferedReader reader = null;
         StringBuffer response = new StringBuffer();
@@ -103,6 +111,11 @@ public class VentraHttpInterface {
         return response.toString();
     }
 
+    /**
+     * Sends a POST request with the card info to get the card data
+     * @param cardinfo card info (number, expiry year, expiry month)
+     * @return a JSON Object with the card data
+     */
     public JSONObject makePostRequest(JSONObject cardinfo) {
 
         int responseCode;

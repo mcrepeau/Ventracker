@@ -18,28 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link DisplayCardFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link DisplayCardFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class DisplayCardFragment extends Fragment {
 
     private static final String TAG = "DisplayCardFragment";
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
+    /**
+     * UI References
+     */
     //private TextView mMediaNickname;
     private TextView mPartialMediaSerialNbr;
     private TextView mTransitAccountId;
@@ -51,9 +36,6 @@ public class DisplayCardFragment extends Fragment {
     private Button mAddCardButton;
 
     private VentraCheckDBHelper mDbHelper;
-
-    public static Map<String, String> CARDS;
-    public static List<String> cardNames;
 
     private String result_info;
     private String result_data;
@@ -70,28 +52,19 @@ public class DisplayCardFragment extends Fragment {
     public final static String EXTRA_CARD_NB = "com.mcrepeau.ventracheck.CARD_NB";
     public final static String EXTRA_NEW_CARD = "com.mcrepeau.ventracheck.NEW_CARD";
 
-
+    /**
+     * Instantiates the Fragment
+     * @param cardinfo JSON String containing the card info
+     * @param carddata JSON String containing the card data
+     * @param newcard boolean to know if the card is new or not
+     * @return
+     */
     public static DisplayCardFragment newInstance(String cardinfo, String carddata, boolean newcard) {
         DisplayCardFragment fragment = new DisplayCardFragment();
         Bundle args = new Bundle();
         args.putString(EXTRA_CARD_INFO, cardinfo);
         args.putString(EXTRA_CARD_DATA, carddata);
         args.putBoolean(EXTRA_NEW_CARD, newcard);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static DisplayCardFragment newInstance(int position){
-        DisplayCardFragment fragment = new DisplayCardFragment();
-        Bundle args = new Bundle();
-        args.putInt(EXTRA_CARD_NB, position);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static DisplayCardFragment newInstance(){
-        DisplayCardFragment fragment = new DisplayCardFragment();
-        Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
     }
@@ -103,14 +76,9 @@ public class DisplayCardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments().size() == 3) {
             result_info = getArguments().getString(EXTRA_CARD_INFO);
             result_data = getArguments().getString(EXTRA_CARD_DATA);
             new_card = getArguments().getBoolean(EXTRA_NEW_CARD);
-        }
-        else if (getArguments().size() == 1){
-            position = getArguments().getInt(EXTRA_CARD_NB);
-        }
 
     }
 
@@ -118,41 +86,13 @@ public class DisplayCardFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
-        // We instantiate the DB Helper and open the DB
         mDbHelper = new VentraCheckDBHelper(getActivity().getApplicationContext());
 
-        CARDS = mDbHelper.getAllCardsfromDB();
-        cardNames = new ArrayList<String>(CARDS.keySet());
+        populateInfo(result_data);
 
-        int nb_args = getArguments().size();
-
-        // If we don't come from the MainActivity and no cards are in the DB we go to the CheckCardActivity
-        // If there is a card in the DB we fetch its data and display it
-        // Otherwise we just display the data from the card scanned
-        switch(nb_args){
-            case 1:
-                if (cardNames.size() == 0){
-                    Log.v(TAG, "No cards in the database");
-                    startActivity(new Intent(getActivity(), CheckCardActivity.class));
-                }
-                else {
-                    Log.v(TAG, "Card selected");
-                    List<String> carddata = mDbHelper.getCardDatafromDB(cardNames, position);
-                    if (carddata.size() == 0) {
-                        Log.v(TAG, "No data present in the DB for this card, need to refresh");
-                    }
-                    else {
-                        populateInfo(carddata.get(carddata.size()-1));
-                    }
-                    mAddCardButton.setVisibility(View.GONE);
-                }
-                break;
-            case 2:
-                Log.v(TAG, "Card scanned or data refreshed");
-                populateInfo(result_data);
-
-                break;
-        }
+        if(new_card)
+            mAddCardButton.setVisibility(View.VISIBLE);
+        else mAddCardButton.setVisibility(View.GONE);
 
     }
 
@@ -225,6 +165,10 @@ public class DisplayCardFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
+    /**
+     * Populates all the UI elements in the View for display
+     * @param data JSON String containing the data to be displayed
+     */
     public void populateInfo(String data){
         JSONObject JSONdata;
         int nbbusridesremaining, nbtrainridesremaining, passtimeremaining;

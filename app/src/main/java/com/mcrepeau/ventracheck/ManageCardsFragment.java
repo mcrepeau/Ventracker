@@ -18,26 +18,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Large screen devices (such as tablets) are supported by replacing the ListView
- * with a GridView.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
- * interface.
- */
 public class ManageCardsFragment extends Fragment implements AbsListView.OnItemClickListener {
 
     private static final String TAG = "ManageCardsFragment";
 
+    private VentraCheckDBHelper mDbHelper;
     public static Map<String, String> CARDS;
     public static List<String> cardNames;
 
     private OnFragmentInteractionListener mListener;
 
-    private VentraCheckDBHelper mDbHelper;
-
+    /**
+     * UI References
+     */
     private Button mRemoveCardButton;
     private int mItemSelected;
 
@@ -52,7 +45,6 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
      */
     private ListAdapter mAdapter;
 
-    // TODO: Rename and change types of parameters
     public static ManageCardsFragment newInstance() {
         ManageCardsFragment fragment = new ManageCardsFragment();
         Bundle args = new Bundle();
@@ -80,13 +72,14 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
         mAdapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.cards_list_item, android.R.id.text1, cardNames);
 
-        mDbHelper.close();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_managecards, container, false);
+
+        mDbHelper = new VentraCheckDBHelper(getActivity().getApplicationContext());
 
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
@@ -100,7 +93,6 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
         mRemoveCardButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mDbHelper.removeCardFromDB(cardNames, mItemSelected);
-                CARDS = mDbHelper.getAllCardsfromDB();
                 // Reload list
                 rePopulateCardsList();
             }
@@ -154,10 +146,16 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
 
     public void rePopulateCardsList(){
 
+        mDbHelper = new VentraCheckDBHelper(getActivity().getApplicationContext());
+        CARDS = mDbHelper.getAllCardsfromDB();
+        cardNames = new ArrayList<String>(CARDS.keySet());
+
         mAdapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.cards_list_item, android.R.id.text1, new ArrayList<String>(CARDS.keySet()));
 
         mListView.setAdapter(mAdapter);
+
+        mDbHelper.close();
     }
 
     /**

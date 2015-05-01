@@ -51,6 +51,11 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
         //onUpgrade(db, oldVersion, newVersion);
     }
 
+    /**
+     * Adds a card to the Database
+     * @param cardinfo the JSON String containing the card info
+     * @return the row at which the card was added
+     */
     public long addCardtoDB(String cardinfo){
         SQLiteDatabase mDb = this.getWritableDatabase();
         JSONObject JSONCardInfo;
@@ -78,6 +83,11 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
         return newRowId;
     }
 
+    /**
+     * Adds card data to the Database
+     * @param carddata JSON String containing the card data
+     * @return the row at which the card was added
+     */
     public long addDatatoDB(String carddata){
         SQLiteDatabase mDb = this.getWritableDatabase();
         JSONObject JSONCardData;
@@ -112,12 +122,10 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
         return newRowId;
     }
 
-    public String getCardInfofromDB(){
-        String cardinfo = null;
-
-        return cardinfo;
-    }
-
+    /**
+     * Gets all the card infos present in the DB
+     * @return HashMap with the name of the card and the data associated with it
+     */
     public Map<String, String> getAllCardsfromDB(){
         SQLiteDatabase mDb = this.getReadableDatabase();
         JSONObject JSONinfo = new JSONObject();
@@ -162,6 +170,12 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
         return cardinfo;
     }
 
+    /**
+     * Fetches the card data for a given card from the Database
+     * @param cards the list of cards present in the DB
+     * @param position the position of the card we want to fetch the data for
+     * @return List of Strings for each and every data update the card has known
+     */
     public List<String> getCardDatafromDB(List<String> cards, int position){
         SQLiteDatabase mDb = this.getReadableDatabase();
         JSONObject JSONdata = new JSONObject();
@@ -213,10 +227,15 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
         return carddata;
     }
 
+    /**
+     * Removes a card from the Database and deletes all associated data
+     * @param cards the list of cards present in the DB
+     * @param position the position of the card we want to delete
+     * @return boolean for success or failure
+     */
     public boolean removeCardFromDB(List<String> cards, int position){
         SQLiteDatabase mDb = this.getWritableDatabase();
         String cardinfo = cards.get(position);
-
         String last4 = cardinfo == null || cardinfo.length() < 4 ?
                 cardinfo : cardinfo.substring(cardinfo.length() - 4);
 

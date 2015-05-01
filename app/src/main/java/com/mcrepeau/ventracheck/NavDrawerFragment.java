@@ -20,18 +20,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Fragment used for managing interactions for and presentation of a navigation drawer.
- * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
- * design guidelines</a> for a complete explanation of the behaviors implemented here.
- */
 public class NavDrawerFragment extends Fragment {
 
     private static final String TAG = "NavDrawerFragment";
@@ -112,7 +106,7 @@ public class NavDrawerFragment extends Fragment {
         mDrawerMenuExpListView = (ExpandableListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
 
-        // preparing list data
+        // Preparing list data
         populateMenu();
 
         ExpandableListAdapter adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
@@ -133,7 +127,7 @@ public class NavDrawerFragment extends Fragment {
             }
         });
 
-        // Listview on child click listener
+        // Listview Child click listener
         mDrawerMenuExpListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
             @Override
@@ -216,6 +210,7 @@ public class NavDrawerFragment extends Fragment {
                     return;
                 }
 
+                // We repopulate the menu to refresh the cards when the drawer is opened
                 populateMenu();
 
                 ExpandableListAdapter adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
@@ -257,10 +252,6 @@ public class NavDrawerFragment extends Fragment {
         mCurrentSelectedGroupPosition = groupPosition;
         mCurrentSelectedChildPosition = childPosition;
 
-        if (mDrawerMenuExpListView != null) {
-            //mDrawerMenuExpListView.setItemChecked(groupPosition, true);
-        }
-
         if (groupPosition != 0 || childPosition != -1) {
             if (mDrawerLayout != null) {
                 mDrawerLayout.closeDrawer(mFragmentContainerView);
@@ -268,6 +259,9 @@ public class NavDrawerFragment extends Fragment {
             if (mCallbacks != null) {
                 Log.v(TAG, "selection: group " + groupPosition + ", child " + childPosition);
                 mCallbacks.onNavigationDrawerItemSelected(groupPosition, childPosition);
+            }
+            if (mDrawerMenuExpListView != null) {
+                mDrawerMenuExpListView.setItemChecked(groupPosition, true);
             }
         }
 

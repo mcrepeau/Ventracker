@@ -16,17 +16,22 @@ public class VentraCardReader {
 
     private static final String TAG = "VentraCardReader";
 
+    /**
+     * Reads the data on the card to get the card info : number, expiry year and expiry month
+     * @param tag
+     * @return a JSON Object containing the card info
+     */
     public JSONObject readCardData(Tag tag){
         IsoDep iso = IsoDep.get(tag);
         JSONObject carddata = new JSONObject();
         if (iso!=null) {
             try {
                 iso.connect();
-                // txMessage is a TextView object used for debugging purpose
                 Log.v(TAG, "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
                 iso.setTimeout(2000);
                 Log.v(TAG, "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
 
+                //First command sent to the card
                 byte[] command1 = new byte[]{   (byte) 0x00,
                         (byte) 0xA4,
                         (byte) 0x04,
@@ -53,6 +58,7 @@ public class VentraCardReader {
 
                 Log.v(TAG, bytesToHex(response1));
 
+                // Second command sent to the card
                 byte[] command2 = new byte[]{   (byte) 0x00,
                         (byte) 0xA4,
                         (byte) 0x04,
@@ -72,6 +78,7 @@ public class VentraCardReader {
 
                 Log.v(TAG, bytesToHex(response2));
 
+                // Third command sent to the card
                 byte[] command3 = new byte[]{   (byte) 0x80,
                         (byte) 0xA8,
                         (byte) 0x00,
@@ -86,6 +93,7 @@ public class VentraCardReader {
 
                 Log.v(TAG, bytesToHex(response3));
 
+                // Fourth and last command sent to the card
                 byte[] command4 = new byte[]{   (byte) 0x00,
                         (byte) 0xB2,
                         (byte) 0x01,
@@ -97,13 +105,15 @@ public class VentraCardReader {
 
                 Log.v(TAG, bytesToHex(response4));
 
+                // We extract the card number from the last response
                 String cardnumber = new String(Arrays.copyOfRange(response4, 10, 26));
                 Log.v(TAG, cardnumber);
-
+                // We extract the card expiry dates from the last response
                 String expyear = new String(Arrays.copyOfRange(response4, 30, 32));
                 String expmonth = new String(Arrays.copyOfRange(response4, 32, 34));
                 Log.v(TAG, expmonth + "/" + expyear);
 
+                // The card info is put into a JSON Object
                 try{
                     carddata.put("cardnumber", cardnumber);
                     carddata.put("expmonth", expmonth);

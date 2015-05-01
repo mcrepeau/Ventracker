@@ -1,9 +1,5 @@
 package com.mcrepeau.ventracheck;
 
-/**
- * Created by mcrepeau on 4/23/15.
- */
-
 import java.util.HashMap;
 import java.util.List;
 

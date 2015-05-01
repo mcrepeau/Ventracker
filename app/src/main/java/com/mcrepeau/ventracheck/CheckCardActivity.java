@@ -25,6 +25,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -34,7 +35,9 @@ public class CheckCardActivity extends Activity {
 
     private static final String TAG = "CheckCardActivity";
 
-    // UI references.
+    /**
+     * UI References
+     */
     private TextView mTextView;
     private TextView mExpiryView;
     private EditText mCardNBView;
@@ -312,7 +315,7 @@ public class CheckCardActivity extends Activity {
             }
 
         } else {
-            //mTextView.setText("No network connection available.");
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT);
         }
     }
 
