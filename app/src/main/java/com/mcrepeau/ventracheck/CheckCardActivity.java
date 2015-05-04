@@ -228,6 +228,11 @@ public class CheckCardActivity extends Activity {
         private final String mExpMonth;
         private final String mExpYear;
 
+        JSONObject JSONcardinfo = new JSONObject();
+        String carddata;
+
+        VentraHttpInterface ventraHttpInterface = new VentraHttpInterface();
+
         CheckCardTask(String nbcard, String expmonth, String expyear) {
             mNBCard = nbcard;
             mExpMonth = expmonth;
@@ -237,9 +242,23 @@ public class CheckCardActivity extends Activity {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                // We proceed with checking the card info
-                getCardData(mNBCard, mExpMonth, mExpYear);
+                // We put the info from the UI views in a JSON object
+                JSONcardinfo.put("SerialNumber", mNBCard);
+                JSONcardinfo.put("ExpireMonth", mExpMonth);
+                JSONcardinfo.put("ExpireYear", mExpYear);
+
+                ConnectivityManager connMgr = (ConnectivityManager)
+                        getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                if (networkInfo != null && networkInfo.isConnected()) {
+                    // We fetch and store the card data in a string
+                    carddata = ventraHttpInterface.getCardData(JSONcardinfo.toString());
+                } else {
+                    Toast.makeText(getApplicationContext(), "No internet connection available", Toast.LENGTH_SHORT);
+                }
             } catch (Exception e) {
+                e.printStackTrace();
                 return false;
             }
 
@@ -250,9 +269,14 @@ public class CheckCardActivity extends Activity {
         protected void onPostExecute(final Boolean success) {
             mCheckCardTask = null;
             showProgress(false);
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 
             if (success) {
-                // TODO: Error handling
+                // The card data and card info are put into an Intent to launch the MainActivity
+                intent.putExtra(EXTRA_CARD_DATA, carddata);
+                intent.putExtra(EXTRA_CARD_INFO, JSONcardinfo.toString());
+                //Start MainActivity
+                startActivity(intent);
             } else {
                 // TODO: Error handling
             }
@@ -262,60 +286,6 @@ public class CheckCardActivity extends Activity {
         protected void onCancelled() {
             mCheckCardTask = null;
             showProgress(false);
-        }
-    }
-
-    public void getCardData(String cardnb, String expmonth, String expyear) {
-        // Gets the URL from the UI's text field.
-        JSONObject JSONrequestrsp;
-        JSONObject JSONcarddata;
-        JSONObject JSONcardinfo = new JSONObject();
-
-
-        try {
-            JSONcardinfo.put("SerialNumber", cardnb);
-            JSONcardinfo.put("ExpireMonth", expmonth);
-            JSONcardinfo.put("ExpireYear", expyear);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        String errorinfo = null;
-
-        VentraHttpInterface ventraHttpInterface = new VentraHttpInterface();
-
-        Intent intent = new Intent(this, MainActivity.class);
-
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected()) {
-            ventraHttpInterface.loadPage();
-            JSONrequestrsp = ventraHttpInterface.makePostRequest(JSONcardinfo);
-            //Parse JSONCardInfo and process its output
-            try{
-                if(JSONrequestrsp.getJSONObject("d").getBoolean("success") == true){
-                    JSONcarddata = JSONrequestrsp.getJSONObject("d").getJSONObject("result");
-                    intent.putExtra(EXTRA_CARD_DATA, JSONcarddata.toString());
-                    intent.putExtra(EXTRA_CARD_INFO, JSONcardinfo.toString());
-                    //Start MainActivity
-                    startActivity(intent);
-                }
-                else {
-                    //TODO Better and more comprehensive error handling
-                    errorinfo = JSONrequestrsp.getJSONObject("d").getString("error");
-                    mCardNBView.setHintTextColor(Color.RED);
-                    mExpiryMonthView.setHintTextColor(Color.RED);
-                    mExpiryYearView.setHintTextColor(Color.RED);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        } else {
-            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT);
         }
     }
 

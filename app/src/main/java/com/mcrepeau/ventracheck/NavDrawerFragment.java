@@ -151,12 +151,17 @@ public class NavDrawerFragment extends Fragment {
         CARDS = mDbHelper.getAllCardsfromDB();
         cardNames = new ArrayList<String>(CARDS.keySet());
 
-        // Adding parent data
-        listDataHeader.add(getString(R.string.title_section1));
-        listDataHeader.add(getString(R.string.title_section2));
-        listDataHeader.add(getString(R.string.title_section3));
+        //if (CARDS.isEmpty()){
+        //    listDataHeader.add(getString(R.string.title_section3));
+        //} else {
+            // Adding parent data
+            listDataHeader.add(getString(R.string.title_section1));
+            listDataHeader.add(getString(R.string.title_section2));
+            listDataHeader.add(getString(R.string.title_section3));
+            listDataChild.put(listDataHeader.get(0), cardNames); // Header, Child data
+        //}
 
-        listDataChild.put(listDataHeader.get(0), cardNames); // Header, Child data
+
 
     }
 
@@ -249,10 +254,11 @@ public class NavDrawerFragment extends Fragment {
 
     private void selectItem(int groupPosition, int childPosition) {
 
-        mCurrentSelectedGroupPosition = groupPosition;
-        mCurrentSelectedChildPosition = childPosition;
-
         if (groupPosition != 0 || childPosition != -1) {
+
+            mCurrentSelectedGroupPosition = groupPosition;
+            mCurrentSelectedChildPosition = childPosition;
+
             if (mDrawerLayout != null) {
                 mDrawerLayout.closeDrawer(mFragmentContainerView);
             }
@@ -348,7 +354,6 @@ public class NavDrawerFragment extends Fragment {
          */
         void onNavigationDrawerItemSelected(int groupPosition, int childPosition);
 
-        //TODO: Implement a callback to MainActivity to retrieve associated cardinfo and refresh carddata
         void onRefreshCardData(int position);
     }
 }

@@ -1,6 +1,10 @@
 package com.mcrepeau.ventracheck;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -181,5 +185,43 @@ public class VentraHttpInterface {
 
         return JSONresponse;
 
+    }
+
+    /**
+     * Function getting the card data from the Ventra website
+     * @param cardinfo a JSON-formatted string with the info of the card which data has to be fetched
+     */
+
+    public String getCardData(String cardinfo) {
+        JSONObject JSONrequestrsp;
+        JSONObject JSONcarddata;
+        JSONObject JSONcardinfo = null;
+        String result = null;
+
+        try {
+            JSONcardinfo = new JSONObject(cardinfo);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+        loadPage();
+        JSONrequestrsp = makePostRequest(JSONcardinfo);
+
+        //Parse JSONCardInfo and process its output
+        try{
+            if(JSONrequestrsp.getJSONObject("d").getBoolean("success") == true){
+                JSONcarddata = JSONrequestrsp.getJSONObject("d").getJSONObject("result");
+                result = JSONcarddata.toString();
+            }
+            else {
+                //TODO Better and more comprehensive error handling
+                result = JSONrequestrsp.getJSONObject("d").getString("error");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 }

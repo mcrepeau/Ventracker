@@ -155,6 +155,11 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
 
         mListView.setAdapter(mAdapter);
 
+        if (CARDS.isEmpty()){
+            mRemoveCardButton.setVisibility(View.GONE);
+            // TODO : Return to MainActivity
+        }
+
         mDbHelper.close();
     }
 

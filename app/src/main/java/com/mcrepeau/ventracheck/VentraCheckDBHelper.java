@@ -92,7 +92,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase mDb = this.getWritableDatabase();
         JSONObject JSONCardData;
         Calendar c = GregorianCalendar.getInstance();
-        Log.v(TAG, "Time of record" + c.getTime().toString());
+        Log.v(TAG, "Time of record " + c.getTime().toString());
         long newRowId = -1;
 
         try{
