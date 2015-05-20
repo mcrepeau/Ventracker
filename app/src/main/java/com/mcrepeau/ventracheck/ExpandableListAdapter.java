@@ -38,7 +38,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return this._listDataChild.get(this._listDataHeader.get(groupPosition)).size();
+        if (this._listDataChild.get(this._listDataHeader.get(groupPosition)) == null){
+            return 0;
+        }
+        else return this._listDataChild.get(this._listDataHeader.get(groupPosition)).size();
     }
 
     @Override
@@ -90,7 +93,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         View ind = convertView.findViewById( R.id.explist_indicator);
         if(ind != null) {
             ImageView indicator = (ImageView) ind;
-            if (groupPosition == 0) {
+            if (groupPosition == 0 && getChildrenCount(groupPosition) > 0) {
                 indicator.setVisibility(View.VISIBLE);
                 indicator.setImageResource(isExpanded ? R.drawable.expander_ic_maximized : R.drawable.expander_ic_minimized);
             } else {

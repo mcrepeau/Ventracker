@@ -1,11 +1,9 @@
 package com.mcrepeau.ventracheck;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +11,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class DisplayCardFragment extends Fragment {
 
@@ -39,7 +33,7 @@ public class DisplayCardFragment extends Fragment {
 
     private String result_info;
     private String result_data;
-    private boolean new_card;
+    private boolean new_card_can_be_added;
     private int position;
 
     private double BUS_RIDE_COST = 2.00;
@@ -78,7 +72,7 @@ public class DisplayCardFragment extends Fragment {
         super.onCreate(savedInstanceState);
             result_info = getArguments().getString(EXTRA_CARD_INFO);
             result_data = getArguments().getString(EXTRA_CARD_DATA);
-            new_card = getArguments().getBoolean(EXTRA_NEW_CARD);
+            new_card_can_be_added = getArguments().getBoolean(EXTRA_NEW_CARD);
 
     }
 
@@ -90,7 +84,7 @@ public class DisplayCardFragment extends Fragment {
 
         populateInfo(result_data);
 
-        if(new_card)
+        if(new_card_can_be_added)
             mAddCardButton.setVisibility(View.VISIBLE);
         else mAddCardButton.setVisibility(View.GONE);
 
@@ -196,6 +190,7 @@ public class DisplayCardFragment extends Fragment {
             e.printStackTrace();
         }
 
+        //TODO: Catch and handle potential errors
         float balance = Float.parseFloat(mBalance.getText().toString().substring(1));
 
         nbbusridesremaining = (int) Math.floor(balance/BUS_RIDE_COST);

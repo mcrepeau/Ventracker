@@ -159,6 +159,9 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
             mRemoveCardButton.setVisibility(View.GONE);
             // TODO : Return to MainActivity
         }
+        else if (CARDS.size() == 8){
+            // TODO : Display a message indicating that the maximum number of cards has been reached
+        }
 
         mDbHelper.close();
     }

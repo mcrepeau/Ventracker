@@ -118,7 +118,10 @@ public class NavDrawerFragment extends Fragment {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v,
                                         int groupPosition, long id) {
-                selectItem(groupPosition, -1);
+                if (CARDS.isEmpty())
+                    selectItem(-1,-1);
+                else
+                    selectItem(groupPosition, -1);
                 if (groupPosition > 0) {
                     return true;
                 } else {
@@ -151,17 +154,15 @@ public class NavDrawerFragment extends Fragment {
         CARDS = mDbHelper.getAllCardsfromDB();
         cardNames = new ArrayList<String>(CARDS.keySet());
 
-        //if (CARDS.isEmpty()){
-        //    listDataHeader.add(getString(R.string.title_section3));
-        //} else {
+        if (CARDS.isEmpty()){
+            listDataHeader.add(getString(R.string.title_section3));
+        } else {
             // Adding parent data
             listDataHeader.add(getString(R.string.title_section1));
             listDataHeader.add(getString(R.string.title_section2));
             listDataHeader.add(getString(R.string.title_section3));
             listDataChild.put(listDataHeader.get(0), cardNames); // Header, Child data
-        //}
-
-
+        }
 
     }
 
@@ -217,6 +218,8 @@ public class NavDrawerFragment extends Fragment {
 
                 // We repopulate the menu to refresh the cards when the drawer is opened
                 populateMenu();
+
+                //TODO: Manage the case when all the cards are removed and the drawer menu is opened
 
                 ExpandableListAdapter adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
                 mDrawerMenuExpListView.setAdapter(adapter);

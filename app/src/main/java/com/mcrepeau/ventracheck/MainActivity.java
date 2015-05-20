@@ -162,7 +162,7 @@ public class MainActivity extends ActionBarActivity
                 // We look in the DB for the latest data regarding that card and instantiate the
                 // DisplayCardFragment with that
                 if (CARDS.isEmpty()){
-
+                    //TODO: We display a welcome screen prompting the user to add a card
                 }
                 else{
                     result_info = cardInfos.get(childPosition);
@@ -196,6 +196,10 @@ public class MainActivity extends ActionBarActivity
                 intent = new Intent(this, CheckCardActivity.class);
                 startActivity(intent);
                 break;
+            case -1:
+                // "Check New Card" : we redirect the user to the CheckCardActivity
+                intent = new Intent(this, CheckCardActivity.class);
+                startActivity(intent);
         }
 
     }
