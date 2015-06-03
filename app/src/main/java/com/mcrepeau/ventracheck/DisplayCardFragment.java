@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ public class DisplayCardFragment extends Fragment {
      * UI References
      */
     //private TextView mMediaNickname;
+    private TextView mDataRefresh;
+    private TextView mDataRefreshDate;
     private TextView mPartialMediaSerialNbr;
     private TextView mTransitAccountId;
     private TextView mAccountStatus;
@@ -99,6 +102,8 @@ public class DisplayCardFragment extends Fragment {
         // We instantiate the UI elements
         mAddCardButton = (Button) rootView.findViewById(R.id.add_card_button);
 
+        mDataRefresh = (TextView) rootView.findViewById(R.id.dataRefresh);
+        mDataRefreshDate = (TextView) rootView.findViewById(R.id.datarefreshDate);
         //mMediaNickname = (TextView) findViewById(R.id.mediaNicknameValue);
         mPartialMediaSerialNbr = (TextView) rootView.findViewById(R.id.partialMediaSerialNbr);
         //mTransitAccountId = (TextView) findViewById(R.id.transitAccountIdValue);
@@ -164,7 +169,7 @@ public class DisplayCardFragment extends Fragment {
      */
     public void populateInfo(String data){
         JSONObject JSONdata;
-        int nbbusridesremaining, nbtrainridesremaining, passtimeremaining;
+        //int nbbusridesremaining, nbtrainridesremaining, passtimeremaining;
 
         mAddCardButton.setVisibility(View.VISIBLE);
 
@@ -172,6 +177,7 @@ public class DisplayCardFragment extends Fragment {
 
             JSONdata = new JSONObject(data);
 
+            mDataRefreshDate.setText(JSONdata.getString("timestamp"));
             //mMediaNickname.setText(JSONinfo.getString("mediaNickname"));
             mPartialMediaSerialNbr.setText("Card ending in " + JSONdata.getString("partialMediaSerialNbr"));
             //mTransitAccountId.setText(JSONdata.getString("transitAccountId"));
@@ -186,17 +192,19 @@ public class DisplayCardFragment extends Fragment {
 
             mRiderClassDescription.setText(JSONdata.getString("riderClassDescription"));
 
+            //TODO: Catch and handle potential errors
+            float balance = Float.parseFloat(mBalance.getText().toString().substring(1));
+
         } catch (Exception e){
             e.printStackTrace();
         }
 
-        //TODO: Catch and handle potential errors
-        float balance = Float.parseFloat(mBalance.getText().toString().substring(1));
 
-        nbbusridesremaining = (int) Math.floor(balance/BUS_RIDE_COST);
-        nbtrainridesremaining = (int) Math.floor(balance/TRAIN_RIDE_COST);
+
+        //nbbusridesremaining = (int) Math.floor(balance/BUS_RIDE_COST);
+        //nbtrainridesremaining = (int) Math.floor(balance/TRAIN_RIDE_COST);
         //passtimeremaining = 1;
-        mRemainingRides.setText("That's " + nbbusridesremaining + " bus rides OR " + nbtrainridesremaining + " train rides remaining"  );
+        //mRemainingRides.setText("That's " + nbbusridesremaining + " bus rides OR " + nbtrainridesremaining + " train rides remaining"  );
         //mRemainingRides.setText("You have unlimited rides until " + passtimeremaining);
 
 

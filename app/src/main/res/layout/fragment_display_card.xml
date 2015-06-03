@@ -162,6 +162,26 @@
                     android:layout_alignParentBottom="true"
                     android:layout_marginBottom="80dp" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="N/A"
+                    android:id="@+id/datarefreshDate"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="@string/data_refresh"
+                    android:id="@+id/dataRefresh"
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/datarefreshDate"
+                    android:layout_toStartOf="@+id/datarefreshDate" />
+
             </RelativeLayout>
         </RelativeLayout>
 

@@ -26,5 +26,10 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_manage_cards">ManageCardsActivity</string>
 
+    <string name="no_card">No card registered</string>
+    <string name="add_card">Add a new card by clicking "Check new card" in the drawer menu</string>
+
+    <string name="data_refresh">Last update:</string>
+
 
 </resources>

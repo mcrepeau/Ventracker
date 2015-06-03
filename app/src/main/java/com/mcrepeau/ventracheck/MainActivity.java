@@ -15,6 +15,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONObject;
@@ -33,6 +37,8 @@ public class MainActivity extends ActionBarActivity
      */
     private GetCardDataTask mGetCardDataTask = null;
 
+    private Intent mOnActivityResultIntent = null;
+
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -43,6 +49,8 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
     private boolean mMenuState;
+
+    private RelativeLayout noCardMsgLayout;
 
     /**
      * Database helper and variables to store the card info to sync between functions
@@ -61,12 +69,14 @@ public class MainActivity extends ActionBarActivity
     protected String result_info;
     protected String result_data;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // We get the intent from the CheckCardActivity and its data
+        noCardMsgLayout = (RelativeLayout) findViewById(R.id.nocard_msg_layout);
+
         Intent intent = getIntent();
         result_info = intent.getStringExtra(CheckCardActivity.EXTRA_CARD_INFO);
         result_data = intent.getStringExtra(CheckCardActivity.EXTRA_CARD_DATA);
@@ -78,44 +88,18 @@ public class MainActivity extends ActionBarActivity
         // We look for cards in the DB
         CARDS = mDbHelper.getAllCardsfromDB();
 
-        // If we come from the CheckCardActivity and already have info and data to be displayed
         if (result_info != null && result_data != null){
-            // TODO: We parse result info to look for the card number
-            // TODO: We check if this card number is present in the DB, if so we just refresh its data, otherwise we proceed below
-            // We check if the maximum number of cards in the DB has been reached
-            if (CARDS.size() > MAX_CARDS - 1){
-                // We instantiate the DisplayCardFragment with the provided info and data and set the add card flag to false
-                fragmentManager.beginTransaction()
-                        .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, result_data, false))
-                        .commit();
-                mMenuState = true;
-                invalidateOptionsMenu();
-            }
-            else {
-                // We instantiate the DisplayCardFragment with the provided info and data and set the add card flag to true
-                fragmentManager.beginTransaction()
-                        .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, result_data, true))
-                        .commit();
-                mMenuState = true;
-                invalidateOptionsMenu();
-            }
+            onActivityResult(0, RESULT_OK, intent);
+        }
+        else if (CARDS.isEmpty()){
+            // If there is no card in the DB and we don't come from the CheckCardActivity, we go to the CheckCardActivity
+            noCardMsgLayout.setVisibility(View.VISIBLE);
 
+            intent = new Intent(this, CheckCardActivity.class);
+            startActivityForResult(intent, 1);
         }
-        else {
-            if (CARDS.isEmpty()){
-                // If there is no card in the DB and we don't come from the CheckCardActivity, we go to the CheckCardActivity
-                intent = new Intent(this, CheckCardActivity.class);
-                startActivity(intent);
-            }
-/*
-            else {
-                // Otherwise, we automatically go to the first element in the menu
-                // Hack because onNavigationDrawerItemSelected is initially called before onCreate...
-                // and we want to get the result_data displayed
-                onNavigationDrawerItemSelected(0, 0);
-            }
-*/
-        }
+
+        mMenuState = false;
 
         // We instantiate the drawer
         mNavDrawerFragment = (NavDrawerFragment)
@@ -138,8 +122,44 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        result_info = data.getStringExtra(CheckCardActivity.EXTRA_CARD_INFO);
+        result_data = data.getStringExtra(CheckCardActivity.EXTRA_CARD_DATA);
+
+        // TODO: We parse result info to look for the card number
+        // TODO: We check if this card number is present in the DB, if so we just refresh its data, otherwise we proceed below
+
+        if (resultCode == RESULT_OK){
+            mOnActivityResultIntent = data;
+
+            if (noCardMsgLayout != null)
+                noCardMsgLayout.setVisibility(View.GONE);
+
+            if (CARDS.size() > MAX_CARDS - 1) {
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, result_data, false))
+                        .commit();
+            } else {
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, result_data, true))
+                        .commit();
+            }
+            mMenuState = true;
+            invalidateOptionsMenu();
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();  // Always call the superclass method first
+
+        if(mOnActivityResultIntent != null) {
+
+            mOnActivityResultIntent = null;
+        }
+
     }
 
     @Override
@@ -162,12 +182,16 @@ public class MainActivity extends ActionBarActivity
                 // We look in the DB for the latest data regarding that card and instantiate the
                 // DisplayCardFragment with that
                 if (CARDS.isEmpty()){
-                    //TODO: We display a welcome screen prompting the user to add a card
+                    if (noCardMsgLayout != null)
+                        noCardMsgLayout.setVisibility(View.VISIBLE);
                 }
                 else{
                     result_info = cardInfos.get(childPosition);
                     List<String> carddata = mDbHelper.getCardDatafromDB(cardNames, childPosition);
                     mDbHelper.close();
+
+                    if (noCardMsgLayout != null)
+                        noCardMsgLayout.setVisibility(View.GONE);
 
                     fragmentManager.beginTransaction()
                             .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, carddata.get(carddata.size()-1), false))
@@ -179,8 +203,11 @@ public class MainActivity extends ActionBarActivity
                 break;
             case 1:
                 // "Manage cards" group : we instantiate the ManageCardsFragment
+                if (noCardMsgLayout != null)
+                    noCardMsgLayout.setVisibility(View.GONE);
+
                 if (CARDS.isEmpty()){
-                    Toast.makeText(getApplicationContext(), "No cards present in the DB", Toast.LENGTH_SHORT).show();
+
                 }
                 else{
                     fragmentManager.beginTransaction()

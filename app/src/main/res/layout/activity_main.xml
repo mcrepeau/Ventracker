@@ -26,6 +26,50 @@
             android:id="@+id/fragment_placeholder"
             android:layout_height="match_parent"
             android:layout_width="match_parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:id="@+id/nocard_msg_layout">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/no_card"
+                    android:id="@+id/noCardMsgView"
+                    android:layout_gravity="center"
+                    android:layout_alignParentTop="false"
+                    android:layout_alignParentLeft="false"
+                    android:layout_alignParentRight="false"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="100dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="@string/add_card"
+                    android:id="@+id/addCardMsgView"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@+id/noCardMsgView"
+                    android:layout_alignRight="@+id/noCardMsgView"
+                    android:layout_alignLeft="@+id/noCardMsgView" />
+
+                <ImageView
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:id="@+id/leftArrowView"
+                    android:src="@drawable/left_arrow"
+                    android:layout_marginTop="20dp"
+                    android:layout_gravity="center"
+                    android:layout_alignLeft="@+id/noCardMsgView"
+                    android:layout_alignRight="@+id/noCardMsgView"
+                    android:layout_below="@+id/addCardMsgView" />
+            </RelativeLayout>
         </FrameLayout>
 
         <!-- android:layout_gravity="start" tells DrawerLayout to treat
@@ -42,4 +86,5 @@
             tools:layout="@layout/fragment_navigation_drawer" />
 
     </android.support.v4.widget.DrawerLayout>
+
 </LinearLayout>

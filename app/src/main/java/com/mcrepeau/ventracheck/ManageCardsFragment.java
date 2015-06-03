@@ -1,6 +1,7 @@
 package com.mcrepeau.ventracheck;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.support.v4.app.Fragment;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,6 +148,8 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
 
     public void rePopulateCardsList(){
 
+        Intent intent;
+
         mDbHelper = new VentraCheckDBHelper(getActivity().getApplicationContext());
         CARDS = mDbHelper.getAllCardsfromDB();
         cardNames = new ArrayList<String>(CARDS.keySet());
@@ -157,10 +161,13 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
 
         if (CARDS.isEmpty()){
             mRemoveCardButton.setVisibility(View.GONE);
+            intent = new Intent(getActivity(), MainActivity.class);
+            startActivity(intent);
             // TODO : Return to MainActivity
         }
         else if (CARDS.size() == 8){
             // TODO : Display a message indicating that the maximum number of cards has been reached
+            Toast.makeText(getActivity().getApplicationContext(), "", Toast.LENGTH_SHORT);
         }
 
         mDbHelper.close();

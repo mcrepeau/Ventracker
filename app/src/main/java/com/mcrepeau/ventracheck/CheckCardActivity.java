@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -55,6 +56,8 @@ public class CheckCardActivity extends Activity {
     public final static String EXTRA_CARD_INFO = "com.mcrepeau.ventracheck.CARD_INFO";
     public final static String EXTRA_CARD_DATA = "com.mcrepeau.ventracheck.CARD_DATA";
 
+    ComponentName prev_activity = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,11 +99,13 @@ public class CheckCardActivity extends Activity {
 
         // get the Intent that started this Activity
         Intent in = getIntent();
+
         // get the Bundle that stores the data of this Activity
         Bundle b = in.getExtras();
         // getting data from bundle
 
         handleIntent(in);
+        prev_activity = this.getCallingActivity();
 
     }
 
@@ -255,7 +260,12 @@ public class CheckCardActivity extends Activity {
                     // We fetch and store the card data in a string
                     carddata = ventraHttpInterface.getCardData(JSONcardinfo.toString());
                 } else {
-                    Toast.makeText(getApplicationContext(), "No internet connection available", Toast.LENGTH_SHORT);
+                    // This needs to run on the UI thread and is an easier solution than using a handler
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "No internet connection available", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -275,10 +285,16 @@ public class CheckCardActivity extends Activity {
                 // The card data and card info are put into an Intent to launch the MainActivity
                 intent.putExtra(EXTRA_CARD_DATA, carddata);
                 intent.putExtra(EXTRA_CARD_INFO, JSONcardinfo.toString());
-                //Start MainActivity
-                startActivity(intent);
+
+                setResult(RESULT_OK, intent);
+                finish();
+                // Starts MainActivity if we don't come from the MainActivity
+                if (prev_activity == null)
+                    startActivity(intent);
             } else {
                 // TODO: Error handling
+                setResult(RESULT_CANCELED);
+                finish();
             }
         }
 

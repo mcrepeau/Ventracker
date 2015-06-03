@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -198,6 +200,8 @@ public class VentraHttpInterface {
         JSONObject JSONcardinfo = null;
         String result = null;
 
+        Calendar c = GregorianCalendar.getInstance();
+
         try {
             JSONcardinfo = new JSONObject(cardinfo);
         } catch(Exception e){
@@ -211,6 +215,7 @@ public class VentraHttpInterface {
         try{
             if(JSONrequestrsp.getJSONObject("d").getBoolean("success") == true){
                 JSONcarddata = JSONrequestrsp.getJSONObject("d").getJSONObject("result");
+                JSONcarddata.put("timestamp", c.getTime().toString());
                 result = JSONcarddata.toString();
             }
             else {

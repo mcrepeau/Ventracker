@@ -91,8 +91,6 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
     public long addDatatoDB(String carddata){
         SQLiteDatabase mDb = this.getWritableDatabase();
         JSONObject JSONCardData;
-        Calendar c = GregorianCalendar.getInstance();
-        Log.v(TAG, "Time of record " + c.getTime().toString());
         long newRowId = -1;
 
         try{
@@ -103,6 +101,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
             // Create a new map of values, where column names are the keys
             ContentValues card_values = new ContentValues();
 
+            card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_TIMESTAMP, JSONCardData.getString("timestamp"));
             card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_MEDIA_NICK, JSONCardData.getString("mediaNickname"));
             card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB, JSONCardData.getString("partialMediaSerialNbr"));
             card_values.put(VentraCheckDBContract.VentraCardData.COLUMN_NAME_ACCOUNT_ID, JSONCardData.getString("transitAccountId"));
@@ -190,6 +189,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
 
         // We set an array of columns...
         String[] columns = {    VentraCheckDBContract.VentraCardData._ID,
+                VentraCheckDBContract.VentraCardData.COLUMN_NAME_TIMESTAMP,
                 VentraCheckDBContract.VentraCardData.COLUMN_NAME_MEDIA_NICK,
                 VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB,
                 VentraCheckDBContract.VentraCardData.COLUMN_NAME_ACCOUNT_ID,
@@ -205,6 +205,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
             for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
                 if (last4.equals(c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB)))) {
                     try {
+                        JSONdata.put("timestamp", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_TIMESTAMP)));
                         JSONdata.put("mediaNickname", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_MEDIA_NICK)));
                         JSONdata.put("partialMediaSerialNbr", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_CARD_NB)));
                         JSONdata.put("transitAccountId", c.getString(c.getColumnIndex(VentraCheckDBContract.VentraCardData.COLUMN_NAME_ACCOUNT_ID)));
