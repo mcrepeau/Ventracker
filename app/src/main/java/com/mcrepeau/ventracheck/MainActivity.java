@@ -69,6 +69,8 @@ public class MainActivity extends ActionBarActivity
     protected String result_info;
     protected String result_data;
 
+    private boolean mRefreshing;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,9 @@ public class MainActivity extends ActionBarActivity
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
+        mMenuState = true;
+        invalidateOptionsMenu();
+
         // We instantiate the DB Helper and open the DB
         mDbHelper = new VentraCheckDBHelper(getApplicationContext());
         // We look for cards in the DB
@@ -94,12 +99,11 @@ public class MainActivity extends ActionBarActivity
         else if (CARDS.isEmpty()){
             // If there is no card in the DB and we don't come from the CheckCardActivity, we go to the CheckCardActivity
             noCardMsgLayout.setVisibility(View.VISIBLE);
-
+            mMenuState = false;
+            invalidateOptionsMenu();
             intent = new Intent(this, CheckCardActivity.class);
             startActivityForResult(intent, 1);
         }
-
-        mMenuState = false;
 
         // We instantiate the drawer
         mNavDrawerFragment = (NavDrawerFragment)
@@ -125,8 +129,11 @@ public class MainActivity extends ActionBarActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        result_info = data.getStringExtra(CheckCardActivity.EXTRA_CARD_INFO);
-        result_data = data.getStringExtra(CheckCardActivity.EXTRA_CARD_DATA);
+
+        if (data != null) {
+            result_info = data.getStringExtra(CheckCardActivity.EXTRA_CARD_INFO);
+            result_data = data.getStringExtra(CheckCardActivity.EXTRA_CARD_DATA);
+        }
 
         // TODO: We parse result info to look for the card number
         // TODO: We check if this card number is present in the DB, if so we just refresh its data, otherwise we proceed below
@@ -146,7 +153,7 @@ public class MainActivity extends ActionBarActivity
                         .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, result_data, true))
                         .commit();
             }
-            mMenuState = true;
+            mMenuState = false;
             invalidateOptionsMenu();
         }
     }
@@ -156,7 +163,6 @@ public class MainActivity extends ActionBarActivity
         super.onResume();  // Always call the superclass method first
 
         if(mOnActivityResultIntent != null) {
-
             mOnActivityResultIntent = null;
         }
 
@@ -238,6 +244,8 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onRefreshCardData(int position){
         //showProgress(true);
+        mRefreshing = true;
+        invalidateOptionsMenu();
 
         // We get the cards from the DB, select the info of the one we want to refresh and save it in a global variable to be fetched by the GetDataTask afterwards
         CARDS = mDbHelper.getAllCardsfromDB();
@@ -277,8 +285,14 @@ public class MainActivity extends ActionBarActivity
             getMenuInflater().inflate(R.menu.display_card, menu);
             if (mMenuState == false)
                 menu.findItem(R.id.action_refresh).setVisible(false);
-            else
+            else {
                 menu.findItem(R.id.action_refresh).setVisible(true);
+                if (mRefreshing)
+                    menu.findItem(R.id.action_refresh).setActionView(
+                            R.layout.actionbar_indeterminate_progress);
+                else
+                    menu.findItem(R.id.action_refresh).setActionView(null);
+            }
             restoreActionBar();
             return true;
         }
@@ -357,7 +371,8 @@ public class MainActivity extends ActionBarActivity
         @Override
         protected void onPostExecute(final Boolean success) {
             mGetCardDataTask = null;
-            //showProgress(false);
+            mRefreshing = false;
+            invalidateOptionsMenu();
 
             if (success) {
                 // Refresh the DisplayCardFragment
@@ -375,7 +390,8 @@ public class MainActivity extends ActionBarActivity
         @Override
         protected void onCancelled() {
             mGetCardDataTask = null;
-            //showProgress(false);
+            mRefreshing = false;
+            invalidateOptionsMenu();
         }
     }
 

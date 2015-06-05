@@ -293,8 +293,6 @@ public class CheckCardActivity extends Activity {
                     startActivity(intent);
             } else {
                 // TODO: Error handling
-                setResult(RESULT_CANCELED);
-                finish();
             }
         }
 

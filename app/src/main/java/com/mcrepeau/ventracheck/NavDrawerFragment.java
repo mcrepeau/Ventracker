@@ -219,8 +219,6 @@ public class NavDrawerFragment extends Fragment {
                 // We repopulate the menu to refresh the cards when the drawer is opened
                 populateMenu();
 
-                //TODO: Manage the case when all the cards are removed and the drawer menu is opened
-
                 ExpandableListAdapter adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
                 mDrawerMenuExpListView.setAdapter(adapter);
                 mDrawerMenuExpListView.expandGroup(0, true);
