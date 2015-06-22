@@ -1,10 +1,12 @@
 package com.mcrepeau.ventracheck;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
@@ -71,11 +73,18 @@ public class MainActivity extends ActionBarActivity
 
     private boolean mRefreshing;
 
+    UpdateAlarmReceiver alarm = new UpdateAlarmReceiver();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Sets the alarm from the SharedPrefs
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        Log.v(TAG, "Sync frequency set to: " + prefs.getString("sync_frequency", ""));
+        alarm.setAlarm(this, Integer.parseInt(prefs.getString("sync_frequency", "30")));
 
         noCardMsgLayout = (RelativeLayout) findViewById(R.id.nocard_msg_layout);
 

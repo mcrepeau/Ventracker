@@ -11,9 +11,11 @@
     <string name="riderClassDescriptionValue">No Fare</string>
     <string name="partialMediaSerialNbrValue">Card ending in xxxx</string>
 
-    <string name="totalBalanceAddPretaxBalance">Your total balance: </string>
+    <string name="total_balance">Your total balance: </string>
     <string name="passes">No pass on this card </string>
     <string name="remainingRidesValue">No rides remaining.</string>
+    <string name="data_refresh">Last updated: </string>
+    <string name="total_passes">Your pass: </string>
 
     <string name="add_card_button">Add Card</string>
     <string name="remove_card_button">Remove Card</string>
@@ -29,7 +31,10 @@
     <string name="no_card">No card registered</string>
     <string name="add_card">Add a new card by clicking "Check new card" in the drawer menu</string>
 
-    <string name="data_refresh">Last update:</string>
+    <string name="low_balance">Low balance on Ventra!</string>
+    <string name="pass_expiry">Ventra pass about to expire!</string>
+    <string name="card_status">Card data updated</string>
+    <string name="connection_error">Internet connection unavailable!</string>
 
 
 </resources>

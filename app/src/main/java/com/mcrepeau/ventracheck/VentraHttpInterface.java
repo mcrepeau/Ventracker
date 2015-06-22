@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -200,7 +201,8 @@ public class VentraHttpInterface {
         JSONObject JSONcardinfo = null;
         String result = null;
 
-        Calendar c = GregorianCalendar.getInstance();
+        //Calendar c = GregorianCalendar.getInstance();
+        DateTime currentDateTime = new DateTime();
 
         try {
             JSONcardinfo = new JSONObject(cardinfo);
@@ -215,7 +217,8 @@ public class VentraHttpInterface {
         try{
             if(JSONrequestrsp.getJSONObject("d").getBoolean("success") == true){
                 JSONcarddata = JSONrequestrsp.getJSONObject("d").getJSONObject("result");
-                JSONcarddata.put("timestamp", c.getTime().toString());
+                //JSONcarddata.put("timestamp", c.getTime().toString());
+                JSONcarddata.put("timestamp", currentDateTime.toString());
                 result = JSONcarddata.toString();
             }
             else {

@@ -11,6 +11,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Hours;
+import org.joda.time.Minutes;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DisplayCardFragment extends Fragment {
@@ -30,6 +35,7 @@ public class DisplayCardFragment extends Fragment {
     private TextView mPasses;
     private TextView mRiderClassDescription;
     private TextView mRemainingRides;
+    private TextView mActivity;
     private Button mAddCardButton;
 
     private VentraCheckDBHelper mDbHelper;
@@ -112,6 +118,7 @@ public class DisplayCardFragment extends Fragment {
         mPasses = (TextView) rootView.findViewById(R.id.passes);
         mRiderClassDescription = (TextView) rootView.findViewById(R.id.riderClassDescription);
         mRemainingRides = (TextView) rootView.findViewById(R.id.remainingRides);
+        mActivity = (TextView) rootView.findViewById(R.id.activity);
 
         mAddCardButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -168,8 +175,10 @@ public class DisplayCardFragment extends Fragment {
      * @param data JSON String containing the data to be displayed
      */
     public void populateInfo(String data){
-        JSONObject JSONdata;
+        JSONObject JSONdata, JSONpasses;
         //int nbbusridesremaining, nbtrainridesremaining, passtimeremaining;
+
+        DateTime currentDate = new DateTime();
 
         mAddCardButton.setVisibility(View.VISIBLE);
 
@@ -177,17 +186,41 @@ public class DisplayCardFragment extends Fragment {
 
             JSONdata = new JSONObject(data);
 
-            mDataRefreshDate.setText(JSONdata.getString("timestamp"));
+            int days = Days.daysBetween(DateTime.parse(JSONdata.getString("timestamp")), currentDate).getDays();
+            int hours = Hours.hoursBetween(DateTime.parse(JSONdata.getString("timestamp")), currentDate).getHours();
+            int minutes = Minutes.minutesBetween(DateTime.parse(JSONdata.getString("timestamp")), currentDate).getMinutes();
+
+            if (minutes < 60){
+                mDataRefreshDate.setText(minutes + " minutes ago");
+            }
+            if (minutes >= 60 && hours <= 48){
+                mDataRefreshDate.setText(hours + " hours ago");
+            }
+            if (hours > 48){
+                mDataRefreshDate.setText(days + " days ago");
+            }
+
             //mMediaNickname.setText(JSONinfo.getString("mediaNickname"));
             mPartialMediaSerialNbr.setText("Card ending in " + JSONdata.getString("partialMediaSerialNbr"));
             //mTransitAccountId.setText(JSONdata.getString("transitAccountId"));
             mAccountStatus.setText("Account " + JSONdata.getString("accountStatus"));
             mBalance.setText(JSONdata.getString("totalBalanceAndPretaxBalance"));
-            if (JSONdata.getString("passes") == "[]"){
+            Log.v(TAG, JSONdata.getString("passes"));
+
+            // We strip the first and the last character ([]) from the string that contains the passes info
+            String passes = JSONdata.getString("passes").substring(1, JSONdata.getString("passes").length()-1);
+            JSONpasses = new JSONObject(passes);
+
+            if (passes.equals("")){
                 mPasses.setText("No pass is active on this card");
             }
             else{
-                mPasses.setText(JSONdata.getString("passes") + "is active on this card");
+                mPasses.setText(JSONpasses.getString("name"));
+                if (JSONpasses.getString("startDate").equals("") || JSONpasses.getString("endDate").equals(""))
+                    mActivity.setText("Inactive");
+                else
+                    mActivity.setText("Active since " + JSONpasses.getString("startDate") + " and until " + JSONpasses.getString("endDate"));
+
             }
 
             mRiderClassDescription.setText(JSONdata.getString("riderClassDescription"));
@@ -198,8 +231,6 @@ public class DisplayCardFragment extends Fragment {
         } catch (Exception e){
             e.printStackTrace();
         }
-
-
 
         //nbbusridesremaining = (int) Math.floor(balance/BUS_RIDE_COST);
         //nbtrainridesremaining = (int) Math.floor(balance/TRAIN_RIDE_COST);

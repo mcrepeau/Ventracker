@@ -118,10 +118,7 @@ public class NavDrawerFragment extends Fragment {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v,
                                         int groupPosition, long id) {
-                if (CARDS.isEmpty())
-                    selectItem(-1,-1);
-                else
-                    selectItem(groupPosition, -1);
+                selectItem(groupPosition, -1);
                 if (groupPosition > 0) {
                     return true;
                 } else {
@@ -136,7 +133,8 @@ public class NavDrawerFragment extends Fragment {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v,
                                         int groupPosition, int childPosition, long id) {
-                selectItem(groupPosition, childPosition);
+                if (CARDS.isEmpty())    selectItem(-1,-1);
+                else    selectItem(groupPosition, childPosition);
                 return false;
             }
         });

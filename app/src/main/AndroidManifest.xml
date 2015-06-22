@@ -3,8 +3,10 @@
     package="com.mcrepeau.ventracheck">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
 
     <application
         android:allowBackup="true"
@@ -41,11 +43,19 @@
             android:label="@string/title_activity_settings" >
         </activity>
 
+        <receiver android:name=".DeviceBootReceiver"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
+
         <service
-            android:name=".UpdateCardInfoService"
+            android:name=".UpdateCardDataService"
             android:enabled="true"
             android:exported="true" >
         </service>
+        <receiver android:name=".UpdateAlarmReceiver"></receiver>
 
     </application>
 
