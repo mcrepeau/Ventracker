@@ -61,10 +61,10 @@ public class VentraHttpInterface {
                     }
                 }
 
-                Log.v(TAG, _cookie);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, _cookie);
 
                 String responseString = readStream(urlConnection.getInputStream());
-                Log.v(TAG, responseString);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, responseString);
 
                 if(_authtoken == ""){
                     //parse the responseString for <input type="hidden" name="hdnRequestVerificationToken" id="hdnRequestVerificationToken" value="[a-zA-Z0-9]+"/>
@@ -75,10 +75,10 @@ public class VentraHttpInterface {
                     }
                 }
 
-                Log.v(TAG, _authtoken);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, _authtoken);
 
             }else{
-                Log.v(TAG, "Response code:" + responseCode);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "Response code:" + responseCode);
             }
 
         } catch (Exception e) {
@@ -143,7 +143,7 @@ public class VentraHttpInterface {
             e.printStackTrace();
         }
 
-        Log.v(TAG, JSONrequest.toString());
+        if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, JSONrequest.toString());
 
         try {
             String responseString;
@@ -173,7 +173,7 @@ public class VentraHttpInterface {
 
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             responseString = readStream(in);
-            Log.v(TAG, responseCode + " - " + responseString);
+            if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, responseCode + " - " + responseString);
             in.close();
             JSONresponse = new JSONObject(responseString);
         } catch (ClientProtocolException e) {

@@ -106,8 +106,8 @@ public class UpdateCardDataService extends IntentService {
         int balance_threshold = Integer.parseInt(prefs.getString("balance_threshold", "4"));
         int days_threshold = Integer.parseInt(prefs.getString("days_threshold", "2"));
 
-        Log.v(TAG, "Balance check: " + notifications_card_balance +  ", threshold set to: " + balance_threshold);
-        Log.v(TAG, "Days check: " + notification_card_expiry + ", threshold set to: " + days_threshold);
+        if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "Balance check: " + notifications_card_balance +  ", threshold set to: " + balance_threshold);
+        if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "Days check: " + notification_card_expiry + ", threshold set to: " + days_threshold);
 
         // Parses the card data to find its balance and the date of expiry
         try{
@@ -122,14 +122,14 @@ public class UpdateCardDataService extends IntentService {
                 remaining_days = Days.daysBetween(currentDate, DateTime.parse(JSONpasses.getString("endDate"))).getDays();
                 if (notification_card_expiry == true && (remaining_days < days_threshold && remaining_days > 0)) {
                     sendNotification(getString(R.string.pass_expiry), "Ventra pass" + card_nb + " expires in " + remaining_days + "days");
-                    Log.i(TAG, "Ventra Card" + card_nb + " expires in " + remaining_days + "days");
+                    if (BuildConfig.BUILD_TYPE == "debug")  Log.i(TAG, "Ventra Card" + card_nb + " expires in " + remaining_days + "days");
                 }
             }
 
             // Throw a notification depending on the card's data and the pre-set params
             if (notifications_card_balance == true && (remaining_balance < balance_threshold)) {
                 sendNotification(getString(R.string.low_balance), "Ventracard " + card_nb + " has a low balance of $" + remaining_balance);
-                Log.i(TAG, "Ventra Card " + card_nb + " has a low balance of " + remaining_balance);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.i(TAG, "Ventra Card " + card_nb + " has a low balance of " + remaining_balance);
             }
 
         } catch (Exception e){

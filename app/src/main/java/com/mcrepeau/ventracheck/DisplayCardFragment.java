@@ -205,10 +205,10 @@ public class DisplayCardFragment extends Fragment {
             //mTransitAccountId.setText(JSONdata.getString("transitAccountId"));
             mAccountStatus.setText("Account " + JSONdata.getString("accountStatus"));
             mBalance.setText(JSONdata.getString("totalBalanceAndPretaxBalance"));
-            Log.v(TAG, JSONdata.getString("passes"));
+            if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, JSONdata.getString("passes"));
 
             // We strip the first and the last character ([]) from the string that contains the passes info
-            String passes = JSONdata.getString("passes").substring(1, JSONdata.getString("passes").length()-1);
+            String passes = JSONdata.getString("passes").substring(1, JSONdata.getString("passes").length() - 1);
             JSONpasses = new JSONObject(passes);
 
             if (passes.equals("")){
@@ -237,10 +237,7 @@ public class DisplayCardFragment extends Fragment {
         //passtimeremaining = 1;
         //mRemainingRides.setText("That's " + nbbusridesremaining + " bus rides OR " + nbtrainridesremaining + " train rides remaining"  );
         //mRemainingRides.setText("You have unlimited rides until " + passtimeremaining);
-
-
+        
     }
-
-
 
 }

@@ -162,7 +162,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
                         cardnb : cardnb.substring(cardnb.length() - 4);
 
                 cardinfo.put("VentraCard *" + last4, JSONinfo.toString());
-                Log.v(TAG, "VentraCard *" + last4 + "/" + JSONinfo.toString());
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "VentraCard *" + last4 + "/" + JSONinfo.toString());
             }
         }
 
@@ -220,7 +220,7 @@ public class VentraCheckDBHelper extends SQLiteOpenHelper {
                     // We have to cast the JSON structure into a string to return it
                     carddata.add(JSONdata.toString());
 
-                    Log.v(TAG, "VentraCard *" + last4 + "/" + JSONdata.toString());
+                    if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "VentraCard *" + last4 + "/" + JSONdata.toString());
                 }
             }
         }

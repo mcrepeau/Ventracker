@@ -27,9 +27,9 @@ public class VentraCardReader {
         if (iso!=null) {
             try {
                 iso.connect();
-                Log.v(TAG, "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
                 iso.setTimeout(2000);
-                Log.v(TAG, "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "Max:" + iso.getMaxTransceiveLength() + " timeout:" + iso.getTimeout() + " connected:" + iso.isConnected());
 
                 //First command sent to the card
                 byte[] command1 = new byte[]{   (byte) 0x00,
@@ -53,10 +53,10 @@ public class VentraCardReader {
                         (byte) 0x31,
                         (byte) 0x00};
 
-                Log.v(TAG, bytesToHex(command1));
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, bytesToHex(command1));
                 byte[] response1 = iso.transceive(command1);
 
-                Log.v(TAG, bytesToHex(response1));
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, bytesToHex(response1));
 
                 // Second command sent to the card
                 byte[] command2 = new byte[]{   (byte) 0x00,
@@ -73,10 +73,10 @@ public class VentraCardReader {
                         (byte) 0x10,
                         (byte) 0x00};
 
-                Log.v(TAG, bytesToHex(command2));
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, bytesToHex(command2));
                 byte[] response2 = iso.transceive(command2);
 
-                Log.v(TAG, bytesToHex(response2));
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, bytesToHex(response2));
 
                 // Third command sent to the card
                 byte[] command3 = new byte[]{   (byte) 0x80,
@@ -88,10 +88,10 @@ public class VentraCardReader {
                         (byte) 0x00,
                         (byte) 0x00};
 
-                Log.v(TAG, bytesToHex(command3));
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, bytesToHex(command3));
                 byte[] response3 = iso.transceive(command3);
 
-                Log.v(TAG, bytesToHex(response3));
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, bytesToHex(response3));
 
                 // Fourth and last command sent to the card
                 byte[] command4 = new byte[]{   (byte) 0x00,
@@ -100,18 +100,18 @@ public class VentraCardReader {
                         (byte) 0x0C,
                         (byte) 0x00};
 
-                Log.v(TAG, bytesToHex(command4));
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, bytesToHex(command4));
                 byte[] response4 = iso.transceive(command4);
 
-                Log.v(TAG, bytesToHex(response4));
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, bytesToHex(response4));
 
                 // We extract the card number from the last response
                 String cardnumber = new String(Arrays.copyOfRange(response4, 10, 26));
-                Log.v(TAG, cardnumber);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, cardnumber);
                 // We extract the card expiry dates from the last response
                 String expyear = new String(Arrays.copyOfRange(response4, 30, 32));
                 String expmonth = new String(Arrays.copyOfRange(response4, 32, 34));
-                Log.v(TAG, expmonth + "/" + expyear);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, expmonth + "/" + expyear);
 
                 // The card info is put into a JSON Object
                 try{
@@ -124,7 +124,7 @@ public class VentraCardReader {
 
 
             } catch (IOException e) {
-                Log.v(TAG, " " + e.getMessage());
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, " " + e.getMessage());
             }
         }
 

@@ -262,7 +262,7 @@ public class NavDrawerFragment extends Fragment {
                 mDrawerLayout.closeDrawer(mFragmentContainerView);
             }
             if (mCallbacks != null) {
-                Log.v(TAG, "selection: group " + groupPosition + ", child " + childPosition);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "selection: group " + groupPosition + ", child " + childPosition);
                 mCallbacks.onNavigationDrawerItemSelected(groupPosition, childPosition);
             }
             if (mDrawerMenuExpListView != null) {
@@ -321,7 +321,7 @@ public class NavDrawerFragment extends Fragment {
         }
 
         if (item.getItemId() == R.id.action_refresh) {
-            Log.v(TAG, "User requested refresh data for card " + mCurrentSelectedChildPosition);
+            if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "User requested refresh data for card " + mCurrentSelectedChildPosition);
             mCallbacks.onRefreshCardData(mCurrentSelectedChildPosition);
             return true;
         }

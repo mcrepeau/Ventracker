@@ -129,7 +129,7 @@ public class ManageCardsFragment extends Fragment implements AbsListView.OnItemC
             mListView.setItemChecked(position, true);
             mListener.onFragmentInteraction(CARDS.get(position));
             mItemSelected = position;
-            Log.v(TAG, "card selected " + position);
+            if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "card selected " + position);
         }
     }
 

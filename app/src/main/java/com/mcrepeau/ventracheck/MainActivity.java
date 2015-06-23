@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.content.Intent;
@@ -80,6 +81,8 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.v(TAG, "Running " + BuildConfig.BUILD_TYPE + " version");
 
         // Sets the alarm from the SharedPrefs
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -188,7 +191,7 @@ public class MainActivity extends ActionBarActivity
         cardInfos = new ArrayList<String>(CARDS.values());
         cardNames = new ArrayList<String>(CARDS.keySet());
 
-        Log.v(TAG, "drawer position: " + groupPosition);
+        if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "drawer position: " + groupPosition);
 
         // We look at the group the user clicked on
         switch (groupPosition) {
@@ -328,7 +331,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Log.v(TAG, "Inside of onRestoreInstanceState");
+        if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "Inside of onRestoreInstanceState");
         result_data = savedInstanceState.getString("result_data");
         result_info = savedInstanceState.getString("result_info");
     }

@@ -194,7 +194,7 @@ public class SettingsActivity extends PreferenceActivity {
                 ListPreference listPreference = (ListPreference) preference;
                 int index = listPreference.findIndexOfValue(stringValue);
 
-                Log.v(TAG, preference.getKey() + ": " + stringValue);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, preference.getKey() + ": " + stringValue);
 /*
                 if (preference.getKey() == "sync_frequency"){
                     alarm.setAlarm(context, Integer.parseInt(stringValue));
@@ -208,7 +208,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             } else if (preference instanceof CheckBoxPreference) {
 
-                Log.v(TAG, preference.getKey() + ": " + stringValue);
+                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, preference.getKey() + ": " + stringValue);
 
             } else {
                 // For all other preferences, set the summary to the value's
