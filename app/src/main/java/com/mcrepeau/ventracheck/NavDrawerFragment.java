@@ -58,6 +58,7 @@ public class NavDrawerFragment extends Fragment {
     List<String> listDataHeader;
     HashMap<String, List<String>> listDataChild;
     private View mFragmentContainerView;
+    private ExpandableListAdapter adapter;
 
     private int mCurrentSelectedGroupPosition = 0;
     private int mCurrentSelectedChildPosition = 0;
@@ -107,9 +108,10 @@ public class NavDrawerFragment extends Fragment {
                 R.layout.fragment_navigation_drawer, container, false);
 
         // Preparing list data
+        // adapter.notifyDataSetChanged();
         populateMenu();
 
-        ExpandableListAdapter adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
+        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
         mDrawerMenuExpListView.setAdapter(adapter);
 
         // Listview Group click listener

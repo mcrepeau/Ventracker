@@ -237,7 +237,7 @@ public class DisplayCardFragment extends Fragment {
         //passtimeremaining = 1;
         //mRemainingRides.setText("That's " + nbbusridesremaining + " bus rides OR " + nbtrainridesremaining + " train rides remaining"  );
         //mRemainingRides.setText("You have unlimited rides until " + passtimeremaining);
-        
+
     }
 
 }
