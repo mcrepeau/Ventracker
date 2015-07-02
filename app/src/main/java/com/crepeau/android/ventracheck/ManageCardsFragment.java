@@ -1,4 +1,4 @@
-package com.mcrepeau.ventracheck;
+package com.crepeau.android.ventracheck;
 
 import android.app.Activity;
 import android.content.Intent;

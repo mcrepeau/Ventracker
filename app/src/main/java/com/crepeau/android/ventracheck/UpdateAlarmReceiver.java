@@ -1,4 +1,4 @@
-package com.mcrepeau.ventracheck;
+package com.crepeau.android.ventracheck;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

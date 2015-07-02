@@ -8,4 +8,4 @@
     android:background="#ffff"
     android:alpha="0.8"
     android:groupIndicator="@android:color/transparent"
-    tools:context="com.mcrepeau.ventracheck.NavDrawerFragment" />
+    tools:context="com.crepeau.android.ventracheck.NavDrawerFragment" />

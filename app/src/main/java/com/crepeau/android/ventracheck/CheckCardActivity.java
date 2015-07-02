@@ -1,4 +1,4 @@
-package com.mcrepeau.ventracheck;
+package com.crepeau.android.ventracheck;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -53,8 +53,8 @@ public class CheckCardActivity extends Activity {
     IntentFilter[] filters;
     String[][] techList;
 
-    public final static String EXTRA_CARD_INFO = "com.mcrepeau.ventracheck.CARD_INFO";
-    public final static String EXTRA_CARD_DATA = "com.mcrepeau.ventracheck.CARD_DATA";
+    public final static String EXTRA_CARD_INFO = "com.crepeau.android.ventracheck.CARD_INFO";
+    public final static String EXTRA_CARD_DATA = "com.crepeau.android.ventracheck.CARD_DATA";
 
     ComponentName prev_activity = null;
 
@@ -266,6 +266,7 @@ public class CheckCardActivity extends Activity {
                             Toast.makeText(getApplicationContext(), "No internet connection available", Toast.LENGTH_SHORT).show();
                         }
                     });
+                    return false;
                 }
             } catch (Exception e) {
                 e.printStackTrace();

@@ -1,4 +1,4 @@
-package com.mcrepeau.ventracheck;
+package com.crepeau.android.ventracheck;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -15,7 +15,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DisplayCardFragment extends Fragment {
@@ -50,10 +49,10 @@ public class DisplayCardFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public final static String EXTRA_CARD_INFO = "com.mcrepeau.ventracheck.CARD_INFO";
-    public final static String EXTRA_CARD_DATA = "com.mcrepeau.ventracheck.CARD_DATA";
-    public final static String EXTRA_CARD_NB = "com.mcrepeau.ventracheck.CARD_NB";
-    public final static String EXTRA_NEW_CARD = "com.mcrepeau.ventracheck.NEW_CARD";
+    public final static String EXTRA_CARD_INFO = "com.crepeau.android.ventracheck.CARD_INFO";
+    public final static String EXTRA_CARD_DATA = "com.crepeau.android.ventracheck.CARD_DATA";
+    public final static String EXTRA_CARD_NB = "com.crepeau.android.ventracheck.CARD_NB";
+    public final static String EXTRA_NEW_CARD = "com.crepeau.android.ventracheck.NEW_CARD";
 
     /**
      * Instantiates the Fragment
@@ -191,13 +190,16 @@ public class DisplayCardFragment extends Fragment {
             int minutes = Minutes.minutesBetween(DateTime.parse(JSONdata.getString("timestamp")), currentDate).getMinutes();
 
             if (minutes < 60){
-                mDataRefreshDate.setText(minutes + " minutes ago");
+                if (minutes == 1) mDataRefreshDate.setText("1 minute ago");
+                else    mDataRefreshDate.setText(minutes + " minutes ago");
             }
             if (minutes >= 60 && hours <= 48){
-                mDataRefreshDate.setText(hours + " hours ago");
+                if (hours == 1) mDataRefreshDate.setText("1 hour ago");
+                else    mDataRefreshDate.setText(hours + " hours ago");
             }
             if (hours > 48){
-                mDataRefreshDate.setText(days + " days ago");
+                if (days == 1) mDataRefreshDate.setText("1 day ago");
+                else    mDataRefreshDate.setText(days + " days ago");
             }
 
             //mMediaNickname.setText(JSONinfo.getString("mediaNickname"));

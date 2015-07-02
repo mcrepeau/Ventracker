@@ -1,4 +1,4 @@
-package com.mcrepeau.ventracheck;
+package com.crepeau.android.ventracheck;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -6,7 +6,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.content.Intent;
@@ -19,12 +18,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -150,7 +145,7 @@ public class MainActivity extends ActionBarActivity
         // TODO: We parse result info to look for the card number
         // TODO: We check if this card number is present in the DB, if so we just refresh its data, otherwise we proceed below
 
-        if (resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK && result_data != null){
             mOnActivityResultIntent = data;
 
             if (noCardMsgLayout != null)
@@ -211,8 +206,13 @@ public class MainActivity extends ActionBarActivity
                     if (noCardMsgLayout != null)
                         noCardMsgLayout.setVisibility(View.GONE);
 
+                    String latestData = null;
+                    if (!carddata.isEmpty()) {
+                        latestData = carddata.get(carddata.size() - 1);
+                    }
+
                     fragmentManager.beginTransaction()
-                            .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, carddata.get(carddata.size()-1), false))
+                            .replace(R.id.fragment_placeholder, DisplayCardFragment.newInstance(result_info, latestData, false))
                             .commit();
                     mMenuState = true;
                     invalidateOptionsMenu();

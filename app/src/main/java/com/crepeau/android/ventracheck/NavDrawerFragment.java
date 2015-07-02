@@ -1,4 +1,4 @@
-package com.mcrepeau.ventracheck;
+package com.crepeau.android.ventracheck;
 
 import android.app.Activity;
 import android.support.v7.app.ActionBarActivity;
@@ -120,7 +120,9 @@ public class NavDrawerFragment extends Fragment {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v,
                                         int groupPosition, long id) {
-                selectItem(groupPosition, -1);
+                // If there are no cards registered, this means we only have the "Check new card" option
+                if (CARDS.isEmpty())    selectItem(-1,-1);
+                else    selectItem(groupPosition, -1);
                 if (groupPosition > 0) {
                     return true;
                 } else {
@@ -135,8 +137,8 @@ public class NavDrawerFragment extends Fragment {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v,
                                         int groupPosition, int childPosition, long id) {
-                if (CARDS.isEmpty())    selectItem(-1,-1);
-                else    selectItem(groupPosition, childPosition);
+
+                selectItem(groupPosition, childPosition);
                 return false;
             }
         });
@@ -255,6 +257,8 @@ public class NavDrawerFragment extends Fragment {
 
     private void selectItem(int groupPosition, int childPosition) {
 
+        if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "selection: group " + groupPosition + ", child " + childPosition);
+
         if (groupPosition != 0 || childPosition != -1) {
 
             mCurrentSelectedGroupPosition = groupPosition;
@@ -264,7 +268,6 @@ public class NavDrawerFragment extends Fragment {
                 mDrawerLayout.closeDrawer(mFragmentContainerView);
             }
             if (mCallbacks != null) {
-                if (BuildConfig.BUILD_TYPE == "debug")  Log.v(TAG, "selection: group " + groupPosition + ", child " + childPosition);
                 mCallbacks.onNavigationDrawerItemSelected(groupPosition, childPosition);
             }
             if (mDrawerMenuExpListView != null) {

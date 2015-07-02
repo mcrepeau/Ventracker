@@ -1,13 +1,8 @@
-package com.mcrepeau.ventracheck;
+package com.crepeau.android.ventracheck;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -18,16 +13,9 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 
 import java.util.List;
@@ -98,7 +86,6 @@ public class SettingsActivity extends PreferenceActivity {
 
         PreferenceCategory fakeHeader;
 
-        int versionCode = BuildConfig.VERSION_CODE;
         String versionName = BuildConfig.VERSION_NAME;
 
         // In the simplified UI, fragments are not used at all and we instead
@@ -130,7 +117,7 @@ public class SettingsActivity extends PreferenceActivity {
         bindPreferenceSummaryToValue(findPreference("sync_frequency"));
 
         EditTextPreference editTextPref = (EditTextPreference) findPreference("app_version");
-        editTextPref.setSummary(versionName + versionCode);
+        editTextPref.setSummary(versionName);
 
     }
 
