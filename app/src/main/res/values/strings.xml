@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Ventra Check</string>
+    <string name="app_name">Ventracker</string>
     <string name="title_activity_card_check">Check Ventra Card</string>
 
     <string name="title_section1">My Cards</string>

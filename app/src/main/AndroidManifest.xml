@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.crepeau.android.ventracheck">
+    package="com.crepeau.android.ventracker">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.crepeau.android.ventracker.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -23,27 +23,27 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CheckCardActivity"
+            android:name="com.crepeau.android.ventracker.CheckCardActivity"
             android:label="@string/title_activity_card_check"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
-            android:parentActivityName=".MainActivity" >>
+            android:parentActivityName="com.crepeau.android.ventracker.MainActivity" >>
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.crepeau.android.ventracker.MainActivity" />
             <meta-data
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/nfc_tech_list" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.crepeau.android.ventracker.SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
 
-        <receiver android:name=".DeviceBootReceiver"
+        <receiver android:name="com.crepeau.android.ventracker.DeviceBootReceiver"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"></action>
@@ -51,11 +51,11 @@
         </receiver>
 
         <service
-            android:name=".UpdateCardDataService"
+            android:name="com.crepeau.android.ventracker.UpdateCardDataService"
             android:enabled="true"
             android:exported="true" >
         </service>
-        <receiver android:name=".UpdateAlarmReceiver"></receiver>
+        <receiver android:name="com.crepeau.android.ventracker.UpdateAlarmReceiver"></receiver>
 
     </application>
 

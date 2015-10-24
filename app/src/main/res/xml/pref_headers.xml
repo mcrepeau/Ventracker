@@ -2,19 +2,19 @@
 
     <!-- These settings headers are only used on tablets. -->
 
-    <header android:fragment="com.crepeau.android.ventracheck.SettingsActivity$GeneralPreferenceFragment"
+    <header android:fragment="com.crepeau.android.ventracker.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
 
-    <header android:fragment="com.crepeau.android.ventracheck.SettingsActivity$NotificationPreferenceFragment"
+    <header android:fragment="com.crepeau.android.ventracker.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" />
 
-    <header android:fragment="com.crepeau.android.ventracheck.SettingsActivity$DataSyncPreferenceFragment"
+    <header android:fragment="com.crepeau.android.ventracker.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" /><header
-        android:fragment="com.crepeau.android.ventracheck.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="com.crepeau.android.ventracker.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" /><header
-        android:fragment="com.crepeau.android.ventracheck.SettingsActivity$NotificationPreferenceFragment"
+        android:fragment="com.crepeau.android.ventracker.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" /><header
-        android:fragment="com.crepeau.android.ventracheck.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="com.crepeau.android.ventracker.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
 
 </preference-headers>
